@@ -1,0 +1,8 @@
+name	example	
+sex	female
+age	99	
+hemisphere	rh
+numelec	10
+chan_array	12 8 12 16 16 16 12 16 16 14 
+chan_name A;B;C;D;E;F;G;H;J;K;
+
