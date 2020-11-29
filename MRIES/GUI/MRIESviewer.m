@@ -1,3 +1,7 @@
+%MRIES viewer GUI
+%updated by Kaijia Sun
+%
+
 function MRIESviewer(varargin)
 %
 %
@@ -176,13 +180,6 @@ fid = fopen([pathstr filesep 'cortex_abbr.txt']);
 ccep_raw = textscan(fid,'%f %s %f %f %f %f');
 fclose(fid);
 ui.ccep_cortex = char(ccep_raw{2});
-% %% orthogonal view window
-% viewpos = get(ui.mainwindow,'Position');
-% ui.orthoview = figure('Visible', 'Off', 'Name', 'Orthogonal View', 'NumberTitle', 'Off', 'MenuBar', 'none', 'Position', ...
-%     [viewpos(1)+viewpos(3),viewpos(2),600,600], 'CloseRequestFcn', @view_CloseRequestFcn);
-% ui.coronal_axes = axes('Parent', ui.orthoview, 'Units', 'Normalized', 'OuterPosition', [0 0.5 0.5 0.5]);
-% ui.sagittal_axes = axes('Parent', ui.orthoview, 'Units', 'Normalized', 'OuterPosition', [0 0 0.5 0.5]);
-% ui.axial_axes = axes('Parent', ui.orthoview, 'Units', 'Normalized', 'OuterPosition', [0.5 0.5 0.5 0.5]);
 
 viewpos = get(ui.mainwindow,'Position');
 
@@ -370,7 +367,7 @@ if mainpath ~=0
         set(ui.chan_array,'String',num2str(subinfo.chan_array));
         temp_name = cell2mat(tempinfo(12+str2num(tempinfo{10})+1:end));
         set(ui.chan_ABC,'String',temp_name);
-
+        
         cutinfo = strfind(temp_name, ';');
         for i = 1:length(cutinfo)
             if i == 1
@@ -394,7 +391,7 @@ if mainpath ~=0
         fprintf('Subject Infomation file not found,Please load manually.\n')
     end
     
-%     subinfo.stand_coors = importdata([mainpath filesep 'brain3D' filesep 'MNI152_coordinates_ras.txt']);
+    %     subinfo.stand_coors = importdata([mainpath filesep 'brain3D' filesep 'MNI152_coordinates_ras.txt']);
     %
     %
     fprintf('Loading stimulation data... \n')
@@ -438,40 +435,7 @@ if mainpath ~=0
         fprintf('Failed to load parcellation file,corresponding info may unable to display.\n')
     end
     
-%     if exist([subinfo.mainpath filesep 'mri' filesep 'brain.nii'],'file')
-%         vol=MRIread([subinfo.mainpath filesep 'mri' filesep 'brain.nii']);
-%     elseif exist([subinfo.mainpath filesep 'mri' filesep 'brain.mgz'],'file')
-%         vol=MRIread([subinfo.mainpath filesep 'mri' filesep 'brain.mgz']);
-%     end
-%     subinfo.vox2ras = vol.vox2ras;
-%     subinfo.ras2vox = inv(subinfo.vox2ras);
-%     subinfo.vox2ras_tkr = [-1,0,0,128;0,0,1,-128;0,-1,0,128;0,0,0,1];
-%     subinfo.ras2vox_tkr = inv(subinfo.vox2ras_tkr);
-%     fprintf('Generating standard glass brain... \r\n')
-%     [ui,subinfo] = glass_brain_standard(ui,subinfo);
-%     hold(ui.mainaxisc)
-%     hold(ui.mainaxiss)
-%     hold(ui.mainaxisa)
-%     
-%     ui.stim_elec_selectc = scatter(0,0,1,'filled','Parent',ui.mainaxisc,'MarkerEdgeColor','w','linewidth',1);
-%     ui.stim_elec_selects = scatter(0,0,1,'filled','Parent',ui.mainaxiss,'MarkerEdgeColor','w','linewidth',1);
-%     ui.stim_elec_selecta = scatter(0,0,1,'filled','Parent',ui.mainaxisa,'MarkerEdgeColor','w','linewidth',1);
-%     
-%     ui.stim_elec_otherc = scatter(0,0,1,'filled','Parent',ui.mainaxisc,'MarkerEdgeColor','w','linewidth',1);
-%     ui.stim_elec_others = scatter(0,0,1,'filled','Parent',ui.mainaxiss,'MarkerEdgeColor','w','linewidth',1);
-%     ui.stim_elec_othera = scatter(0,0,1,'filled','Parent',ui.mainaxisa,'MarkerEdgeColor','w','linewidth',1);
-%     
-% %     if exist([subinfo.mainpath filesep 'mri' filesep 'aparc+aseg.nii'],'file')
-% %         mri_info = load_nii([subinfo.mainpath filesep 'mri' filesep 'aparc+aseg.nii']); % input argument
-% %         subinfo.aparc_vol = mri_info.img; % use int to save space and increase speed
-% %     else
-% %         fprintf('Failed to load parcellation file,corresponding info may unable to display.\n')
-% %     end
-%     
-%     % setup orthogonal view for T1 image
-%     if ~exist([subinfo.mainpath filesep 'brain3D' filesep 'T1_reslice.nii'],'file')
-%          reslice_nii([subinfo.mainpath filesep 'brain3D' filesep 'T1.nii'],[subinfo.mainpath filesep 'brain3D' filesep 'T1_reslice.nii'],[],0);
-%     end
+    
     if exist([subinfo.mainpath filesep 'brain3D' filesep 'T1.nii'],'file')
         t1info=load_nii([subinfo.mainpath filesep 'brain3D' filesep 'T1.nii']);
         T1vol = t1info.img;
@@ -480,25 +444,25 @@ if mainpath ~=0
     end
     
     % build electrode ROIs
-     if exist([subinfo.mainpath filesep 'brain3D' filesep 'coordinates.txt' ],'file') ...
-             || exist([subinfo.mainpath filesep 'brain3D' filesep 'autocoordinates.mat' ],'file')
+    if exist([subinfo.mainpath filesep 'brain3D' filesep 'coordinates.txt' ],'file') ...
+            || exist([subinfo.mainpath filesep 'brain3D' filesep 'autocoordinates.mat' ],'file')
         subinfo.coordinates = ccep_CreateROIs(subinfo);
         subinfo.dist = dist(subinfo.coordinates');
         distance = subinfo.dist;
         subinfo.dist = subinfo.dist - diag(diag(subinfo.dist));
-     end
+    end
     if  ~exist([subinfo.mainpath filesep 'brain3D' filesep 'distance.mat' ],'file')
         save([subinfo.mainpath filesep 'brain3D' filesep 'distance.mat' ], 'distance');
     end
     % load electrode ROIs
-     if exist([subinfo.mainpath filesep 'brain3D' filesep 'elec_image.nii'],'file')
+    if exist([subinfo.mainpath filesep 'brain3D' filesep 'elec_image.nii'],'file')
         elecImginfo=load_nii([subinfo.mainpath filesep 'brain3D' filesep 'elec_image.nii']);
         T1vol = T1vol + elecImginfo.img;
-     end
+    end
     
     if ~isfield(t1info.hdr.hist,'old_affine')
         t1info.hdr.hist.old_affine =  [t1info.hdr.hist.srow_x;...
-             t1info.hdr.hist.srow_y; t1info.hdr.hist.srow_z;0 0 0 1];
+            t1info.hdr.hist.srow_y; t1info.hdr.hist.srow_z;0 0 0 1];
     end
     
     subinfo.vox2ras = t1info.hdr.hist.old_affine;
@@ -518,7 +482,7 @@ if mainpath ~=0
     
     % Creat orthogonal views and cursor marker
     axes(ui.mainaxisc);
-
+    
     ui.Cview = imshow(rot90(squeeze(ui.Image(:,pointVOL(2),:))),[ui.minvalue 0.8*ui.maxvalue]); % Coronal View
     hold on
     ui.vMarkerC = line([0 0],[0 0],'Color',[0 0 1]);
@@ -552,7 +516,7 @@ if mainpath ~=0
     ylim(ui.mainaxisa,[0 ui.size(2)+1])
     
     
-
+    
     
     fprintf('Complete. \n')
 end
@@ -667,65 +631,12 @@ else
     errordlg('Failed to load corresponding stimulation file.\n');
 end
 
-% time range of RMS (sec) after the stimuluation
-cceprange = [0.01 0.3];
-% time windows for the epoched data
-win = [0.1 0.5];
-% sampling rate
-
-cceprange_point = cceprange*subinfo.Fs;
-win_point = win*subinfo.Fs;
-indx = win_point(1)+(cceprange_point(1):cceprange_point(2));
-
-
-% switch subinfo.method
-%     case 'SNR'
-%         snrPlog=-log(snrP);
-%         Strength=snrPlog;  
-%     case 'L_SNR'
-%         Strength=latency_snr;
-%     case 'L_SNRPeak'
-%         Strength=latency_snrPeak;
-%     case 'Amplitude'
-%         %% evoked timing range
-%                 fwhm_dur_all(fwhm_dur_all<= 100) = 1;
-%                 peak_final(fwhm_dur_all ~=1) = nan;
-%                 
-%                 Strength = abs(peak_final);
-%        
-%     case 'Latency'
-%          %% evoked timing range
-%                 fwhm_dur_all(fwhm_dur_all<= 100) = 1;
-%                 latency_final(fwhm_dur_all ~=1) = nan;
-%                 Strength = latency_final;
-%         
-%     case 'RMS'
-%         h = zeros(size(all_ccep,1),size(all_ccep,2));
-%         if stimelec(1)== sum(subinfo.chan_array)-1
-%             h(1:size(stat.h,1),1:sum(subinfo.chan_array)-2) = stat.h(:,1:end-2);
-%         else
-%             h(1:size(stat.h,1),:) = stat.h;
-%         end
-%         all_ccep_mask = all_ccep;
-%         rms = sqrt(sum(all_ccep_mask(indx,:).^2)./length(indx));
-%         %% evoked timing range
-% %         fwhm_dur_all(fwhm_dur_all<= 100) = 1;
-% %         
-% %         rms(fwhm_dur_all ~=1) = nan;
-%         Strength = rms;
-% end
-
-% if strcmp(subinfo.method, 'Latency')
-%     peak = 1000.*peak;
-% end
-tic
 peak=subinfo.connmat(strcmp(subinfo.conn_char,label1),:);
-%  ccep_mapping_v2(subinfo,peak);
 label1=find(strcmp(subinfo.conn_char,label1));
 label2=find(strcmp(subinfo.conn_char,label2));
 
 [~,subinfo.stiVOL]=ccep_mapping_final(subinfo,peak(:),[label1,label2]);
-toc
+
 
 %    load and display ccep map
 if exist([subinfo.mainpath filesep 'brain3D' filesep 'sccep_map_raw.nii'],'file')
@@ -736,78 +647,70 @@ else
 end
 
 ui.ccepImage = single(mapvol);
-    ui.ccepColormap = jet(round(max(ui.ccepImage(:))));%get colorbar by this matrix
-   
-% %    plot the colormap
-%     figure
-%     scatter(0,0)
-%     maxImg=max(ui.ccepImage(:));
-%     colormap(jet)
-%     colorbar('ytick',[0  200  400 600]/maxImg,'yticklabel',{'0','200','400','600'},'fontsize',30,'Fontname', 'Times New Roman')
+ui.ccepColormap = jet(round(max(ui.ccepImage(:))));%get colorbar by this matrix
 
 
-    
-    Cccep = rot90(squeeze(ui.ccepImage(:,round(pointVOL(2)),:)));
-    Cccep_rgb = zeros(ui.size(3),ui.size(1),3);
-    for i = 1:ui.size(3)
-        for j = 1:ui.size(1)
-            if Cccep(i,j)~=0
-                Cccep_rgb(i,j,:) = ui.ccepColormap(round(Cccep(i,j)),:);
-            else
-                 Cccep_rgb(i,j,:) = [0.4 0.4 0.4];
-            end
+Cccep = rot90(squeeze(ui.ccepImage(:,round(pointVOL(2)),:)));
+Cccep_rgb = zeros(ui.size(3),ui.size(1),3);
+for i = 1:ui.size(3)
+    for j = 1:ui.size(1)
+        if Cccep(i,j)~=0
+            Cccep_rgb(i,j,:) = ui.ccepColormap(round(Cccep(i,j)),:);
+        else
+            Cccep_rgb(i,j,:) = [0.4 0.4 0.4];
         end
     end
-    
-    Sccep = rot90(squeeze(ui.ccepImage(round(pointVOL(1)),:,:)));
-    Sccep_rgb = zeros(ui.size(3),ui.size(2),3);
-    for i = 1:ui.size(3)
-        for j = 1:ui.size(2)
-            if  Sccep(i,j)~=0
-                Sccep_rgb(i,j,:) = ui.ccepColormap(round(Sccep(i,j)),:);
-                else
-                 Sccep_rgb(i,j,:) = [0.4 0.4 0.4];
-            end
-            
+end
+
+Sccep = rot90(squeeze(ui.ccepImage(round(pointVOL(1)),:,:)));
+Sccep_rgb = zeros(ui.size(3),ui.size(2),3);
+for i = 1:ui.size(3)
+    for j = 1:ui.size(2)
+        if  Sccep(i,j)~=0
+            Sccep_rgb(i,j,:) = ui.ccepColormap(round(Sccep(i,j)),:);
+        else
+            Sccep_rgb(i,j,:) = [0.4 0.4 0.4];
         end
-    end
-    
-    Accep = rot90(squeeze(ui.ccepImage(:,:,ui.size(3)+1-round(pointVOL(3)))));
-    Accep_rgb = zeros(ui.size(2),ui.size(1),3);
-    for i = 1:ui.size(2)
-        for j = 1:ui.size(1)
-            if  Accep(i,j)~=0
-                Accep_rgb(i,j,:) = ui.ccepColormap(round(Accep(i,j)),:);
-                else
-                 Accep_rgb(i,j,:) = [0.4 0.4 0.4];
-            end
-            
-        end
-    end
-    if isfield(ui,'Cccep')
-        set(ui.Cccep,'CData',0)
-    end
-    if isfield(ui,'Sccep')
-        set(ui.Sccep,'CData',0);
-    end
-    if isfield(ui,'Accep')
-        set(ui.Accep,'CData',0);
-    end
         
+    end
+end
+
+Accep = rot90(squeeze(ui.ccepImage(:,:,ui.size(3)+1-round(pointVOL(3)))));
+Accep_rgb = zeros(ui.size(2),ui.size(1),3);
+for i = 1:ui.size(2)
+    for j = 1:ui.size(1)
+        if  Accep(i,j)~=0
+            Accep_rgb(i,j,:) = ui.ccepColormap(round(Accep(i,j)),:);
+        else
+            Accep_rgb(i,j,:) = [0.4 0.4 0.4];
+        end
         
-    
-    perc = 0.4;
-    axes(ui.mainaxisc);hold on;
-    ui.Cccep = imshow(Cccep_rgb); % Parcellation Coronal View
-    alpha(ui.Cccep,perc)
-    
-    axes(ui.mainaxiss);hold on;
-    ui.Sccep = imshow(Sccep_rgb); % Parcellation Sagittal View
-    alpha(ui.Sccep,perc)
-    
-    axes(ui.mainaxisa);hold on;
-    ui.Accep = imshow(Accep_rgb); % Parcellation Axial View
-    alpha(ui.Accep,perc)
+    end
+end
+if isfield(ui,'Cccep')
+    set(ui.Cccep,'CData',0)
+end
+if isfield(ui,'Sccep')
+    set(ui.Sccep,'CData',0);
+end
+if isfield(ui,'Accep')
+    set(ui.Accep,'CData',0);
+end
+
+
+
+perc = 0.4;
+axes(ui.mainaxisc);hold on;
+ui.Cccep = imshow(Cccep_rgb); % Parcellation Coronal View
+alpha(ui.Cccep,perc)
+
+axes(ui.mainaxiss);hold on;
+ui.Sccep = imshow(Sccep_rgb); % Parcellation Sagittal View
+alpha(ui.Sccep,perc)
+
+axes(ui.mainaxisa);hold on;
+ui.Accep = imshow(Accep_rgb); % Parcellation Axial View
+alpha(ui.Accep,perc)
 
 
 end
@@ -865,19 +768,7 @@ try
     %     set(ui.conn_value,'String',num2str(connectivity))
 catch
 end
-
-
-% % time range of RMS (sec) after the stimuluation
-% cceprange = [0.01 0.3];
-% % time windows for the epoched data
-% win = [0.1 0.5];
-% % sampling rate
-% 
-% cceprange_point = cceprange*subinfo.Fs;
-% win_point = win*subinfo.Fs;
-% indx = win_point(1)+(cceprange_point(1):cceprange_point(2));
-
-% draw the stimulate electrode pair
+%% draw the stimulate electrode pair
 try
     %     set(ui.stim_elec_selectc,'XData',subinfo.tkr_coordinate(stimelec,1),'YData',subinfo.tkr_coordinate(stimelec,3), ...
     %         'SizeData', ui.spoint, 'MarkerFaceColor', 'g', 'linewidth', 1);
@@ -887,77 +778,11 @@ try
     %         'SizeData', ui.spoint, 'MarkerFaceColor', 'g', 'linewidth', 1);
     set(ui.stim_elec_select,'XData',subinfo.tkr_coordinate(stimelec,1),'YData',subinfo.tkr_coordinate(stimelec,2),'ZData',subinfo.tkr_coordinate(stimelec,3), ...
         'SizeData', ui.spoint, 'MarkerEdgeColor', [0 0 0], 'linewidth', 3);
-%     set(ui.stim_elec_text1,'Position',subinfo.tkr_coordinate(stimelec(1),:)+0.5,'String',char(450))
-%     set(ui.stim_elec_text2,'Position',subinfo.tkr_coordinate(stimelec(2),:)+0.5,'String',char(450))
+    %     set(ui.stim_elec_text1,'Position',subinfo.tkr_coordinate(stimelec(1),:)+0.5,'String',char(450))
+    %     set(ui.stim_elec_text2,'Position',subinfo.tkr_coordinate(stimelec(2),:)+0.5,'String',char(450))
 catch
 end
 
-% cum_chan_per_elec = [0 subinfo.cum_chan_array];
-% 
-% % find the specific electrode where the stim elec was located in
-% indx_stim_elec = find(cum_chan_per_elec > stimelec(1), 1 );
-% 
-% % find the electrodes which possibly were artifically affected by stimulation
-% artifact_range = 3; % nearby two electrodes
-% artifact_elecs_num = [];
-% if ((stimelec(1) - artifact_range) >= cum_chan_per_elec(indx_stim_elec-1)+1) && ...
-%         ((stimelec(2) + artifact_range) <= cum_chan_per_elec(indx_stim_elec))
-%     artifact_elecs_num = [stimelec(1)-artifact_range:stimelec(1)-1 stimelec(2)+1:stimelec(2)+artifact_range];
-%     
-% elseif (stimelec(1) - artifact_range) < cum_chan_per_elec(indx_stim_elec-1)+1
-%     artifact_elecs_num = [cum_chan_per_elec(indx_stim_elec-1)+1:stimelec(1)-1 stimelec(2)+1:stimelec(2)+artifact_range];
-%     
-% elseif (stimelec(2) + artifact_range) > cum_chan_per_elec(indx_stim_elec)
-%     artifact_elecs_num = [stimelec(1)-artifact_range:stimelec(1)-1 stimelec(2)+1:cum_chan_per_elec(indx_stim_elec)];
-% end
-% 
-% artifact_range_mm = 5;
-% artifact_elecs_mm = setdiff(find(subinfo.dist(stimelec(1),:) < artifact_range_mm |  subinfo.dist(stimelec(2),:) < artifact_range_mm), stimelec);
-% 
-% artifact_elecs = artifact_elecs_mm;
-% 
-% switch subinfo.method
-%     case 'SNR'
-%         snrPlog=-log(snrP);
-%         Strength=snrPlog; 
-%     case 'L_SNR'
-%         Strength=latency_snr;
-%     case 'L_SNRPeak'
-%         Strength=latency_snrPeak;
-%     case 'Amplitude'
-%         %         latency_N1(latency_N1==0) = nan;
-%         %         latency_P1(latency_P1==0) = nan;
-%         %
-%         %         latency = [latency_N1 latency_P1];
-%         %
-%         %         peak_temp = [peak_N1 peak_P1];
-%         %
-%         %         [latency_A1,index] = min(latency,[],2);
-%         %         for idx = 1:length(index)
-%         %             peak_A1(idx,1) = peak_temp(idx,index(idx));
-%         %         end
-%         Strength = abs(peak_final);
-%     case 'Latency'
-%         Strength = abs(latency_final);
-%     case 'RMS'
-%         h = zeros(size(all_ccep,1),size(all_ccep,2));
-%         if stimelec(1)== sum(subinfo.chan_array)-1
-%             h(1:size(stat.h,1),1:sum(subinfo.chan_array)-2) = stat.h(:,1:end-2);
-%         else
-%             h(1:size(stat.h,1),:) = stat.h;
-%         end
-%         all_ccep_mask = all_ccep;
-%         Strength = sqrt(sum(all_ccep_mask(indx,:).^2)./length(indx));
-% end
-% peak = abs(Strength);
-% peak(artifact_elecs) = 0;
-% if any(peak)
-%     
-%     peak = peak/max(peak);
-%     subinfo.peak = peak;
-% else
-%     return
-% end
 
 %% only the specific indicator
 
@@ -1025,271 +850,12 @@ end
 % ui.stim_colorbar = colorbar(ui.surfview_axes,'Position',[0.8 0.2 0.03 0.6]);
 ui.stim_colorbar = colorbar(ui.surfview_axes,'fontsize',15,'fontname','Times New Roman');
 
-%% plot the colorbar used in paper
-% ui.stim_colorbar = colorbar(ui.surfview_axes,'Position',[0.8 0.2 0.02 0.6],...
-%     'Ticks',[0 50 100 150 200]','TickLabels',{'0' '50' '100' '150' '200'},...
-%     'fontsize',30,'fontname','Times New Roman');
-
-%%
-% if size(PeakIndex,1)>25
-%     tickvector1 = 1:size(cvalue,1)/5:size(cvalue,1);
-% elseif size(PeakIndex,1)>5
-%     tickvector1 = 1:3:size(cvalue,1);
-% elseif size(PeakIndex,1)>0
-%     tickvector1 = 1:size(cvalue,1);
-% else
-%     tickvector1 = [];
-% end
-
-% set(ui.stim_colorbar,'Clim',[min(peak),max(peak)]);
-% set(ui.stim_colorbar,'Ticks',round(tickvector1)','TickLabels',strcat(num2str(sortedPeak(round(tickvector1))')));
-
 set(ui.surfview,'CurrentAxes',ui.surfaxes);
-%%
-
-% 
-% try
-%     %     x = stimelec(1);
-%     %     y = stimelec(2);
-%     %     set(ui.conn_cross,'Xdata',x,'Ydata',y,'Color',[0 1 0])
-%     %     connectivity = subinfo.connmat(y,x);
-%     %     xlabel = subinfo.conn_char(x);
-%     %     ylabel = subinfo.conn_char(y);
-%     %     xind = num2str(x+1-find(subinfo.conn_char(x) == subinfo.conn_char, 1 ));
-%     %     yind = num2str(y+1-find(subinfo.conn_char(y) == subinfo.conn_char, 1 ));
-%     %
-%     %     set(ui.conn_index_x,'String',[xlabel xind])
-%     %     set(ui.conn_index_y,'String',[ylabel yind])
-%     %     set(ui.conn_value,'String',num2str(connectivity))
-% catch
-% end
-% 
-% 
-% % time range of RMS (sec) after the stimuluation
-% cceprange = [0.01 0.3];
-% % time windows for the epoched data
-% win = [0.1 0.5];
-% % sampling rate
-% 
-% cceprange_point = cceprange*subinfo.Fs;
-% win_point = win*subinfo.Fs;
-% indx = win_point(1)+(cceprange_point(1):cceprange_point(2));
-% 
-% % draw the stimulate electrode pair
-% try
-%     %     set(ui.stim_elec_selectc,'XData',subinfo.tkr_coordinate(stimelec,1),'YData',subinfo.tkr_coordinate(stimelec,3), ...
-%     %         'SizeData', ui.spoint, 'MarkerFaceColor', 'g', 'linewidth', 1);
-%     %     set(ui.stim_elec_selects,'XData',subinfo.tkr_coordinate(stimelec,2),'YData',subinfo.tkr_coordinate(stimelec,3), ...
-%     %         'SizeData', ui.spoint, 'MarkerFaceColor', 'g', 'linewidth', 1);
-%     %     set(ui.stim_elec_selecta,'XData',subinfo.tkr_coordinate(stimelec,1),'YData',subinfo.tkr_coordinate(stimelec,2), ...
-%     %         'SizeData', ui.spoint, 'MarkerFaceColor', 'g', 'linewidth', 1);
-%     set(ui.stim_elec_select,'XData',subinfo.tkr_coordinate(stimelec,1),'YData',subinfo.tkr_coordinate(stimelec,2),'ZData',subinfo.tkr_coordinate(stimelec,3), ...
-%         'SizeData', ui.spoint, 'MarkerEdgeColor', 'g', 'linewidth', 3);
-%     set(ui.stim_elec_text1,'Position',subinfo.tkr_coordinate(stimelec(1),:)+0.5,'String',char(450))
-%     set(ui.stim_elec_text2,'Position',subinfo.tkr_coordinate(stimelec(2),:)+0.5,'String',char(450))
-% catch
-% end
-% 
-% cum_chan_per_elec = [0 subinfo.cum_chan_array];
-% 
-% % find the specific electrode where the stim elec was located in
-% indx_stim_elec = find(cum_chan_per_elec > stimelec(1), 1 );
-% 
-% % find the electrodes which possibly were artifically affected by stimulation
-% artifact_range = 3; % nearby two electrodes
-% artifact_elecs_num = [];
-% if ((stimelec(1) - artifact_range) >= cum_chan_per_elec(indx_stim_elec-1)+1) && ...
-%         ((stimelec(2) + artifact_range) <= cum_chan_per_elec(indx_stim_elec))
-%     artifact_elecs_num = [stimelec(1)-artifact_range:stimelec(1)-1 stimelec(2)+1:stimelec(2)+artifact_range];
-%     
-% elseif (stimelec(1) - artifact_range) < cum_chan_per_elec(indx_stim_elec-1)+1
-%     artifact_elecs_num = [cum_chan_per_elec(indx_stim_elec-1)+1:stimelec(1)-1 stimelec(2)+1:stimelec(2)+artifact_range];
-%     
-% elseif (stimelec(2) + artifact_range) > cum_chan_per_elec(indx_stim_elec)
-%     artifact_elecs_num = [stimelec(1)-artifact_range:stimelec(1)-1 stimelec(2)+1:cum_chan_per_elec(indx_stim_elec)];
-% end
-% 
-% artifact_range_mm = 5;
-% artifact_elecs_mm = setdiff(find(subinfo.dist(stimelec(1),:) < artifact_range_mm |  subinfo.dist(stimelec(2),:) < artifact_range_mm), stimelec);
-% 
-% artifact_elecs = artifact_elecs_mm;
-% 
-% switch subinfo.method
-%     case 'SNR'
-%         snrPlog=-log(snrP);
-%         Strength=snrPlog; 
-%     case 'L_SNR'
-%         Strength=latency_snr;
-%     case 'L_SNRPeak'
-%         Strength=latency_snrPeak;
-%     case 'Amplitude'
-%         %         latency_N1(latency_N1==0) = nan;
-%         %         latency_P1(latency_P1==0) = nan;
-%         %
-%         %         latency = [latency_N1 latency_P1];
-%         %
-%         %         peak_temp = [peak_N1 peak_P1];
-%         %
-%         %         [latency_A1,index] = min(latency,[],2);
-%         %         for idx = 1:length(index)
-%         %             peak_A1(idx,1) = peak_temp(idx,index(idx));
-%         %         end
-%         Strength = abs(peak_final);
-%     case 'Latency'
-%         Strength = abs(latency_final);
-%     case 'RMS'
-%         h = zeros(size(all_ccep,1),size(all_ccep,2));
-%         if stimelec(1)== sum(subinfo.chan_array)-1
-%             h(1:size(stat.h,1),1:sum(subinfo.chan_array)-2) = stat.h(:,1:end-2);
-%         else
-%             h(1:size(stat.h,1),:) = stat.h;
-%         end
-%         all_ccep_mask = all_ccep;
-%         Strength = sqrt(sum(all_ccep_mask(indx,:).^2)./length(indx));
-% end
-% peak = abs(Strength);
-% peak(artifact_elecs) = 0;
-% if any(peak)
-%     
-%     peak = peak/max(peak);
-%     subinfo.peak = peak;
-% else
-%     return
-% end
-% 
-% 
-% if isfield(ui,'ADT_bar')
-%     subinfo.first = [0 subinfo.cum_chan_array(1:end-1)]+1;
-%     subinfo.firstpeak = subinfo.peak;
-%     subinfo.firstpeak(setdiff(1:length(subinfo.peak),subinfo.first)) = 0;
-%     subinfo.firstpeak(intersect(1:length(subinfo.peak),subinfo.first)) = 0.8;
-%     subinfo.otherpeak = subinfo.peak;
-%     subinfo.otherpeak(subinfo.first) = 0;
-%     set(ui.ADT_bar(1),'XData',1:length(subinfo.otherpeak))
-%     set(ui.ADT_bar(1),'YData',subinfo.otherpeak);
-%     set(ui.ADT_bar(2),'XData',1:length(subinfo.firstpeak))
-%     set(ui.ADT_bar(2),'YData',subinfo.firstpeak);
-%     
-% end
-% 
-% % identify an electrode with N1 and P1, use the minimum latency then
-% indx_both = find(latency_N1.*latency_P1>0);
-% for q = indx_both'
-%     if latency_N1(q)>latency_P1(q)
-%         latency_N1(q) = 0;
-%     else
-%         latency_P1(q) = 0;
-%     end
-% end
-% % display negative curve (N1)
-% if any(latency_N1)
-%     
-%     latency_N1 = latency_N1/max([latency_N1;latency_P1]);
-% else
-%     latency_N1 = latency_N1;
-% end
-% 
-% % display positive curve (P1)
-% if any(latency_P1)
-%     
-%     latency_P1 = latency_P1/max([latency_N1;latency_P1]);
-% else
-%     latency_P1 = latency_P1;
-% end
-% 
-% cvalue_N1= winter(sum(latency_N1>0));% shortest latency: blue; longest latency: green;
-% 
-% cvalue_P1= autumn(sum(latency_P1>0));% shortest latency: red; longest latency: yellow;
-% 
-% [sorted_N1, indx_N1]= sort(latency_N1,'ascend');
-% latency_index_N1 = indx_N1(find(sorted_N1>0));
-% 
-% [sorted_P1, indx_P1]= sort(latency_P1,'ascend');
-% latency_index_P1 = indx_P1(find(sorted_P1>0));
-% 
-% hold on
-% val_elecs = setdiff(1:sum(subinfo.chan_array),unique([stimelec artifact_elecs]));
-% 
-% % reset electrodes stimulation pattern
-% if isfield(ui,'stim_elec')
-%     delete(ui.stim_elec);
-% end
-% if isfield(ui,'surfview_axes1')
-%     delete(ui.surfview_axes1);
-% end
-% if isfield(ui,'surfview_axes2')
-%     delete(ui.surfview_axes2);
-% end
-% 
-% 
-% % draw electrodes stimulation pattern
-% activate_elec = [];
-% for ielec= val_elecs
-%     if ismember(ielec,latency_index_N1)
-%         q = find(ielec == latency_index_N1);
-%         ui.stim_elec(ielec,1) = scatter3(subinfo.tkr_coordinate(ielec,1),subinfo.tkr_coordinate(ielec,2),subinfo.tkr_coordinate(ielec,3), ...
-%             max(ui.spoint,peak(ielec)*400),cvalue_N1(q,:),'fill','Parent',ui.surfaxes,'PickableParts', 'None');
-%     elseif ismember(ielec,latency_index_P1)
-%         q = find(ielec == latency_index_P1);
-%         ui.stim_elec(ielec,1) = scatter3(subinfo.tkr_coordinate(ielec,1),subinfo.tkr_coordinate(ielec,2),subinfo.tkr_coordinate(ielec,3), ...
-%             max(ui.spoint,peak(ielec)*400),cvalue_P1(q,:),'fill','Parent',ui.surfaxes,'PickableParts', 'None');
-%     else
-%         ui.stim_elec(ielec,1) = scatter3(subinfo.tkr_coordinate(ielec,1),subinfo.tkr_coordinate(ielec,2),subinfo.tkr_coordinate(ielec,3), ...
-%             ui.spoint,ui.cpoint,'fill','Parent',ui.surfaxes,'PickableParts', 'None');
-%     end
-%     
-% end
-% 
-% % legend
-% legend_latency_N1 = 1000*sort(latency_N1_ori(latency_index_N1));
-% legend_latency_P1 = 1000*sort(latency_P1_ori(latency_index_P1));
-% 
-% ui.surfview_axes1 = axes('Parent', ui.surfview, 'NextPlot', 'Add','Visible','Off','XTick',[],'YTick',[]);
-% ui.surfview_axes2 = axes('Parent', ui.surfview, 'NextPlot', 'Add','Visible','Off','XTick',[],'YTick',[]);
-% % set(ui.surfview_axes1,'View',get(ui.surfaxes,'View'));
-% % set(ui.surfview_axes2,'View',get(ui.surfaxes,'View'));%
-% linkprop([ui.surfaxes,ui.surfview_axes1,ui.surfview_axes2],{'View',...
-%     'cameraposition',...
-%     'cameraupvector',...
-%     'cameratarget',...
-%     'cameraviewangle'});
-% if size(cvalue_N1,1)>0
-%     set(ui.surfview_axes1,'Clim',[0 size(cvalue_N1,1)]);
-%     colormap(ui.surfview_axes1,cvalue_N1);
-% end
-% if size(cvalue_P1,1)>0
-%     set(ui.surfview_axes2,'Clim',[0 size(cvalue_P1,1)]);
-%     colormap(ui.surfview_axes2,cvalue_P1);
-% end
-% ui.stim_colorbar1 = colorbar(ui.surfview_axes1,'Position',[0.1 0.2 0.03 0.6]); ui.stim_colorbar1.Label.String = 'N1';
-% ui.stim_colorbar2 = colorbar(ui.surfview_axes2,'Position',[0.88 0.2 0.03 0.6]); ui.stim_colorbar2.Label.String = 'P1';
-% if size(cvalue_N1,1)>25
-%     tickvector1 = 1:5:size(cvalue_N1,1);
-% elseif size(cvalue_N1,1)>5
-%     tickvector1 = 1:3:size(cvalue_N1,1);
-% elseif size(cvalue_N1,1)>0
-%     tickvector1 = 1:size(cvalue_N1,1);
-% else
-%     tickvector1 = [];
-% end
-% set(ui.stim_colorbar1,'Ticks',tickvector1,'TickLabels',strcat(num2str(legend_latency_N1(tickvector1)),'ms'));
-% if size(cvalue_P1,1)>25
-%     tickvector2 = 1:5:size(cvalue_P1,1);
-% elseif size(cvalue_P1,1)>5
-%     tickvector2 = 1:3:size(cvalue_P1,1);
-% elseif size(cvalue_P1,1)>0
-%     tickvector2 = 1:size(cvalue_P1,1);
-% else
-%     tickvector2 = [];
-% end
-% set(ui.stim_colorbar2,'Ticks',tickvector2,'TickLabels',strcat(num2str(legend_latency_P1(tickvector2)),'ms'));
-% 
-% set(ui.surfview,'CurrentAxes',ui.surfaxes);
 end
 
 function mainwindow_WindowButtonDownFcn(hObject, eventdata)
 
-global ui pointVOL 
+global ui pointVOL
 
 % set the botton-down function of main window
 if strcmp(get(hObject,'SelectionType'),'normal')
@@ -1480,14 +1046,9 @@ end
 
 function mainwindow_CloseRequestFcn(hObject,eventdata)
 
-global ui subinfo  
+global ui subinfo
 delete(hObject);
-if isfield(ui,'orthoview')
-    try
-        delete(ui.orthoview)
-    catch
-    end
-end
+
 
 if isfield(ui,'connview')
     try
@@ -1510,24 +1071,14 @@ if isfield(ui,'circleview')
     end
 end
 
-ui = []; 
-subinfo = [];  
+ui = [];
+subinfo = [];
 clear ui subinfo
 clc
 fprintf('Thanks for using MRIESviewer. \n')
 end
 
 
-% function orthobutton_Callback(hObject,eventdata)
-%
-% global ui
-%
-% if strcmpi(get(ui.orthoview,'Visible'),'On')
-%     set(ui.orthoview,'Visible','Off')
-% else set(ui.orthoview,'Visible','On')
-%
-% end
-% end
 
 % --- Executes on cursor reposition.
 function updatecursor_Callback(hObject, eventdata)
@@ -1538,7 +1089,7 @@ if isfield(ui,'Image')
     pointvol1 = [ui.size(1)+1-round(pointVOL(1)),round(pointVOL(3)),round(pointVOL(2))];
     if isfield(subinfo,'stiVOL')
         
-    stiVOL = mean (subinfo.stiVOL);
+        stiVOL = mean (subinfo.stiVOL);
     else
         stiVOL=[0 0 0];
     end
@@ -1547,15 +1098,15 @@ if isfield(ui,'Image')
         ui.yC=stiVOL(2);
     else
         ui.xC=[];
-        ui.yC=[];        
+        ui.yC=[];
     end
-
+    
     if abs(stiVOL(1)-pointvol1(1))<4
         ui.xS=stiVOL(3);
         ui.yS=stiVOL(2);
     else
         ui.xS=[];
-        ui.yS=[];        
+        ui.yS=[];
     end
     
     
@@ -1564,19 +1115,13 @@ if isfield(ui,'Image')
         ui.yA=ui.size(2)+1-stiVOL(3);
     else
         ui.xA=[];
-        ui.yA=[];        
-    end    
-
+        ui.yA=[];
+    end
+    
     pointRAS = subinfo.vox2ras*[pointvol1-1 1]';
     pointRAS = pointRAS(1:3)';
     pointRAS = round(pointRAS*100)/100;
-
-    % pointRAS = ui.vox2ras*[round(pointVOL-1) 1]';
-    % pointRAS = pointRAS(1:3)';
-    % pointsRAS = ui.vox2ras_tkr*[pointVOL-1 1]';
-    % pointsRAS = pointsRAS(1:3)';
-    % region = aparc_aseg(aparc_indx == handles.aparc_vol(round(pointVOL(1)),round(pointVOL(2)),round(pointVOL(3))),:);
-    % Set cursor position
+    
     set(ui.vMarkerC, 'XData', [pointVOL(1) pointVOL(1)], 'YData', [pointVOL(3)-ui.size(3)-1 pointVOL(3)+ui.size(3)+1]);
     set(ui.hMarkerC, 'XData', [pointVOL(1)-ui.size(1)-1 pointVOL(1)+ui.size(1)+1], 'YData', [pointVOL(3) pointVOL(3)]);
     set(ui.vMarkerS, 'XData', [pointVOL(2) pointVOL(2)], 'YData', [pointVOL(3)-ui.size(3)-1 pointVOL(3)+ui.size(3)+1]);
@@ -1635,26 +1180,15 @@ if isfield(ui,'Image')
     end
     
     set(ui.stiC,'XData',ui.xC,'YData',ui.yC);
-    uistack(ui.stiC,'top') 
+    uistack(ui.stiC,'top')
     set(ui.stiS,'XData',ui.xS,'YData',ui.yS);
-    uistack(ui.stiS,'top') 
-    set(ui.stiA,'XData',ui.xA,'YData',ui.yA); 
-    uistack(ui.stiA,'top') 
-    % set(handles.coordinate_vol,'String',num2str(round(pointVOL-1)))
-    % set(handles.coordinate_sras,'String',num2str(pointsRAS));
-    % set(handles.coordinate_ras,'String',num2str(pointRAS))
-    % set(handles.intensity,'String',handles.density_vol(round(pointVOL(1)),round(pointVOL(2)),round(pointVOL(3))))
+    uistack(ui.stiS,'top')
+    set(ui.stiA,'XData',ui.xA,'YData',ui.yA);
+    uistack(ui.stiA,'top')
     set(ui.volcoord,'String',num2str(pointvol1))
     set(ui.rascoord,'String',num2str(pointRAS))
     set(ui.underlay_value,'String',num2str(ui.Image(round(pointVOL(1)),round(pointVOL(2)),ui.size(3)+1-round(pointVOL(3)))))
-
-    % set(handles.region,'String',deblank(region))
-    % if isfield(handles,'sMarker')
-    %     try
-    %         set(handles.sMarker,'XData',pointsRAS(1)+0.01,'YData',pointsRAS(2)+0.01,'ZData',pointsRAS(3)+0.01);
-    %     catch
-    %     end
-    % end
+    
     
     
 end
@@ -1667,126 +1201,114 @@ function circle_button_Callback(hObject,eventdata)
 
 global ui subinfo
 
-    
-    if isempty(subinfo.connmat)
-        if exist([subinfo.mainpath filesep 'Matrix' filesep 'conn_matrix_' subinfo.method '_.mat'],'file')
-            fprintf('Loading connectivity matrix... \n')
-            a = load([subinfo.mainpath filesep 'Matrix' filesep 'conn_matrix_' subinfo.method '_.mat']);
-            c = fieldnames(a);
-            subinfo.connmat = getfield(a,c{1});
-        elseif exist([subinfo.mainpath filesep 'stimulationdata'],'dir')
-            fprintf('Calculating connectivity matrix.. \n')
-            subinfo.connmat = calculate_connectivity_matrix(subinfo);
+
+if isempty(subinfo.connmat)
+    if exist([subinfo.mainpath filesep 'Matrix' filesep 'conn_matrix_' subinfo.method '_.mat'],'file')
+        fprintf('Loading connectivity matrix... \n')
+        a = load([subinfo.mainpath filesep 'Matrix' filesep 'conn_matrix_' subinfo.method '_.mat']);
+        c = fieldnames(a);
+        subinfo.connmat = getfield(a,c{1});
+    elseif exist([subinfo.mainpath filesep 'stimulationdata'],'dir')
+        fprintf('Calculating connectivity matrix.. \n')
+        subinfo.connmat = calculate_connectivity_matrix(subinfo);
+    else
+        warndlg('Loading stimulation data failed,please chech the corresponding files.')
+    end
+end
+
+if isempty(subinfo.connthresh)
+    subinfo.connthresh=0;
+end
+
+R1=10;
+R2=9;
+
+[roicortex,percent] = find_roi(subinfo.vol_coordinate,subinfo.aparc_vol,ui.aparc_aseg,ui.aparc_indx,subinfo.roi_radius);
+roicortex = deblank(roicortex);
+[cortex_unique,Iall,Iuni] = unique(roicortex);
+cortex_new = cortex_unique;
+
+for n = 1:length(cortex_unique)
+    cortex_elecnum(n) = length(find(Iuni==n));
+    cortex_elec{n} = find(Iuni == n);
+end
+m = 0;
+for n = 1:length(cortex_unique)
+    if ~ismember(cortex_unique(n),ui.ccep_cortex)
+        cortex_new(n-m) = [];
+        cortex_elecnum(n-m) = [];
+        cortex_elec(n-m) = [];
+        m = m+1;
+    end
+end
+textstr = char(cortex_new);
+textstr(find(textstr=='_')) = '-';
+
+cvalue = cool(length(cortex_unique));
+interval = 2*pi/(sum(cortex_elecnum)+length(cortex_new));
+delta = interval;
+for i = 1:length(cortex_new)
+    deltap(i,1) = delta;
+    for j = 1:cortex_elecnum(i)
+        alpha = linspace(0,interval,100)+delta;
+        x1 = R1*cos(alpha);
+        y1 = R1*sin(alpha);
+        x2 = R2*cos(alpha);
+        y2 = R2*sin(alpha);
+        x = [x2 fliplr(x1)];
+        y = [y2 fliplr(y1)];
+        plot(x,y,'Parent',ui.circleaxes1);
+        hold on
+        ui.circle_elec = fill(x,y,cvalue(ceil(length(cortex_unique)/2)),'Parent',ui.circleaxes1,'Tag', num2str(cortex_elec{i}(j)),'ButtonDownFcn', @circle_elec_ButtonDownFcn);
+        rotation_angle = mean(alpha)*180/pi;
+        if rotation_angle>90 && rotation_angle<270
+            ui.circle_elec_text(cortex_elec{i}(j)) = text((R1+0.2)*cos(mean(alpha)),(R1+0.2)*sin(mean(alpha)),' ', 'rotation',rotation_angle-180,...
+                'HorizontalAlignment','right','Parent',ui.circleaxes2, 'Visible', 'Off', 'PickableParts', 'None');
         else
-            warndlg('Loading stimulation data failed,please chech the corresponding files.')
+            ui.circle_elec_text(cortex_elec{i}(j)) = text((R1+0.2)*cos(mean(alpha)),(R1+0.2)*sin(mean(alpha)),' ', 'rotation',rotation_angle,...
+                'HorizontalAlignment','left','Parent',ui.circleaxes2, 'Visible', 'Off', 'PickableParts', 'None');
         end
+        delta = max(alpha);
     end
-    
-    if isempty(subinfo.connthresh)
-        subinfo.connthresh=0;
+    deltap(i,2) = delta;
+    delta = delta+interval;
+end
+%     axis square;
+for i = 1:length(cortex_new)
+    position(i,:) = [R2*cos(mean(deltap(i,:))),R2*sin(mean(deltap(i,:)))];
+    textxp = (R1+0.5)*cos(mean(deltap(i,:)));
+    textyp = (R1+0.5)*sin(mean(deltap(i,:)));
+    rotation_angle = mean(deltap(i,:))*180/pi;
+    if rotation_angle>90&&rotation_angle<270
+        ui.circle_text(i) =text(textxp,textyp,textstr(i,:),'HorizontalAlignment','right','rotation',rotation_angle-180,'fontsize',20,'Parent',ui.circleaxes1);
+    else
+        ui.circle_text(i) = text(textxp,textyp,textstr(i,:),'HorizontalAlignment','left','rotation',rotation_angle,'fontsize',20,'Parent',ui.circleaxes1);
     end
-    
-    R1=10;
-    R2=9;
-    
-    [roicortex,percent] = find_roi(subinfo.vol_coordinate,subinfo.aparc_vol,ui.aparc_aseg,ui.aparc_indx,subinfo.roi_radius);
-    roicortex = deblank(roicortex);
-    [cortex_unique,Iall,Iuni] = unique(roicortex);
-    cortex_new = cortex_unique;
-    
-    for n = 1:length(cortex_unique)
-        cortex_elecnum(n) = length(find(Iuni==n));
-        cortex_elec{n} = find(Iuni == n);
-    end
-    m = 0;
-    for n = 1:length(cortex_unique)
-        if ~ismember(cortex_unique(n),ui.ccep_cortex)
-            cortex_new(n-m) = [];
-            cortex_elecnum(n-m) = [];
-            cortex_elec(n-m) = [];
-            m = m+1;
-        end
-    end
-    textstr = char(cortex_new);
-    textstr(find(textstr=='_')) = '-';
-    
-    cvalue = cool(length(cortex_unique));
-    interval = 2*pi/(sum(cortex_elecnum)+length(cortex_new));
-    delta = interval;
-    for i = 1:length(cortex_new)
-        deltap(i,1) = delta;
-        for j = 1:cortex_elecnum(i)
-            alpha = linspace(0,interval,100)+delta;
-            x1 = R1*cos(alpha);
-            y1 = R1*sin(alpha);
-            x2 = R2*cos(alpha);
-            y2 = R2*sin(alpha);
-            x = [x2 fliplr(x1)];
-            y = [y2 fliplr(y1)];
-            plot(x,y,'Parent',ui.circleaxes1);
-            hold on
-            ui.circle_elec = fill(x,y,cvalue(ceil(length(cortex_unique)/2)),'Parent',ui.circleaxes1,'Tag', num2str(cortex_elec{i}(j)),'ButtonDownFcn', @circle_elec_ButtonDownFcn);
-            rotation_angle = mean(alpha)*180/pi;
-            if rotation_angle>90 && rotation_angle<270
-                ui.circle_elec_text(cortex_elec{i}(j)) = text((R1+0.2)*cos(mean(alpha)),(R1+0.2)*sin(mean(alpha)),' ', 'rotation',rotation_angle-180,...
-                    'HorizontalAlignment','right','Parent',ui.circleaxes2, 'Visible', 'Off', 'PickableParts', 'None');
-            else
-                ui.circle_elec_text(cortex_elec{i}(j)) = text((R1+0.2)*cos(mean(alpha)),(R1+0.2)*sin(mean(alpha)),' ', 'rotation',rotation_angle,...
-                    'HorizontalAlignment','left','Parent',ui.circleaxes2, 'Visible', 'Off', 'PickableParts', 'None');
-            end
-            delta = max(alpha);
-        end
-        deltap(i,2) = delta;
-        delta = delta+interval;
-    end
-    %     axis square;
-    for i = 1:length(cortex_new)
-        position(i,:) = [R2*cos(mean(deltap(i,:))),R2*sin(mean(deltap(i,:)))];
-        textxp = (R1+0.5)*cos(mean(deltap(i,:)));
-        textyp = (R1+0.5)*sin(mean(deltap(i,:)));
-        rotation_angle = mean(deltap(i,:))*180/pi;
-        if rotation_angle>90&&rotation_angle<270
-            ui.circle_text(i) =text(textxp,textyp,textstr(i,:),'HorizontalAlignment','right','rotation',rotation_angle-180,'fontsize',20,'Parent',ui.circleaxes1);
-        else
-            ui.circle_text(i) = text(textxp,textyp,textstr(i,:),'HorizontalAlignment','left','rotation',rotation_angle,'fontsize',20,'Parent',ui.circleaxes1);
-        end
-    end
-    
-    direction = zeros(length(cortex_new));
-    for stim_cortex = 1:length(cortex_new)
-        stim_elec = cortex_elec{stim_cortex};
-        for resp_cortex = 1:length(cortex_new)
-            if resp_cortex ~= stim_cortex
-                resp_elec = cortex_elec{resp_cortex};
-                direction_mark = 0;
-                conn_temp = subinfo.connmat(stim_elec,resp_elec);
-                conn_temp(conn_temp<=subinfo.connthresh) = 0;
-                if sum(find(conn_temp>0))>=1
-                    if direction(resp_cortex,stim_cortex) == 1;
-                        direction_mark = 1;  %% bidirectional
-                    end
-                    ui.circle_map= bulge_byx(position(stim_cortex,1),position(stim_cortex,2), ...
-                        position(resp_cortex,1),position(resp_cortex,2),2,direction_mark,ui.circleaxes2);
-                    direction(stim_cortex,resp_cortex) = 1;
+end
+
+direction = zeros(length(cortex_new));
+for stim_cortex = 1:length(cortex_new)
+    stim_elec = cortex_elec{stim_cortex};
+    for resp_cortex = 1:length(cortex_new)
+        if resp_cortex ~= stim_cortex
+            resp_elec = cortex_elec{resp_cortex};
+            direction_mark = 0;
+            conn_temp = subinfo.connmat(stim_elec,resp_elec);
+            conn_temp(conn_temp<=subinfo.connthresh) = 0;
+            if sum(find(conn_temp>0))>=1
+                if direction(resp_cortex,stim_cortex) == 1;
+                    direction_mark = 1;  %% bidirectional
                 end
+                ui.circle_map= bulge_byx(position(stim_cortex,1),position(stim_cortex,2), ...
+                    position(resp_cortex,1),position(resp_cortex,2),2,direction_mark,ui.circleaxes2);
+                direction(stim_cortex,resp_cortex) = 1;
             end
         end
     end
-    colormap(ui.circleaxes2,jet(32))
-    colormap(ui.circleaxes1,gray(32))
-%     ui.circle_colorbar = colorbar(ui.circleaxes2,'TickLabels',[],'FontSize',18, ...
-%         'Location','Southoutside','Position',[0.1 0.08 0.08 0.03]);
-%     ui.arrow=annotation(ui.circleview,'arrow',[0.2 0.28], [0.095 0.095],'headStyle','vback2','HeadWidth',20,...
-%                  'linewidth',5,'HeadLength',20,'color',[0 0 0]);
-%     ui.text1=annotation(ui.circleview,'textbox',[0.3,0.08,0.4,0.03],'String','Connection Direction','FitBoxToText','on','fontsize',20,'fontname','times new roman','edgecolor',[1 1 1]);
-% 
-%     ui.circle_colorbar2 = annotation(ui.circleview,'rectangle', ...
-%         'Position',[0.1 0.04 0.08 0.03],'color',[0 0 0],'facecolor',[0 0 0]);
-%     ui.arrow2=annotation(ui.circleview,'doublearrow',[0.2 0.28], [0.05 0.05],'headStyle','vback2','Head1Width',20,'Head2Width',20,...
-%                  'linewidth',5,'Head1Length',20,'Head2Length',20,'color',[0 0 0]);
-%     ui.text2=annotation(ui.circleview,'textbox',[0.3,0.04,0.4,0.03],'String','Connection Bidirection','FitBoxToText','off','fontsize',20,'fontname','times new roman','edgecolor',[1 1 1]);
-%     saveas(gcf,'/media/sunkj/WorkAndStudy/jianguoyun/我的坚果云/桌面/figure4/circle.jpg')
- if strcmpi(get(hObject,'String'),'circle map')
+end
+colormap(ui.circleaxes2,jet(32))
+colormap(ui.circleaxes1,gray(32))
+if strcmpi(get(hObject,'String'),'circle map')
     if strcmpi(get(ui.circleview,'Visible'),'On')
         set(ui.circleview,'Visible','Off')
     else
@@ -1834,7 +1356,7 @@ if filename ~= 0
             a = load([pathname filename]);
             c = fieldnames(a);
             subinfo.raw_coors = getfield(a,c{1});
-           
+            
         end
     end
     
@@ -1865,56 +1387,8 @@ if filename ~= 0
     % point size and color
     ui.spoint = 30;
     ui.cpoint = [ 0 0 0];
+    
 
-    % draw a glass brain in MNI space
-%     stand_pointxyz = mat2cell(subinfo.stand_coors(:,1:3), subinfo.chan_array, 3);
-
-%     i = 1;
-%     for ielec=1:subinfo.num_elec
-%         
-%         
-%         line([ stand_pointxyz{ielec,1}(1,1) stand_pointxyz{ielec,1}(end,1)],...
-%             [stand_pointxyz{ielec,1}(1,3) stand_pointxyz{ielec,1}(end,3)],...
-%             'Color',[0 0 0.5],'LineWidth',1,'Parent',ui.mainaxisc);
-%         text(stand_pointxyz{ielec,1}(end,1)+2,stand_pointxyz{ielec,1}(end,3)+2,elec_label(ielec),...
-%             'FontSize',15,'Color',[0 0 0],'FontWeight','bold','Parent',ui.mainaxisc);
-%         hold on
-%         
-%         line([ stand_pointxyz{ielec,1}(1,2) stand_pointxyz{ielec,1}(end,2)],...
-%             [stand_pointxyz{ielec,1}(1,3) stand_pointxyz{ielec,1}(end,3)],...
-%             'Color',[0 0 0.5],'LineWidth',1,'Parent',ui.mainaxiss);
-%         text(stand_pointxyz{ielec,1}(end,2)+2,stand_pointxyz{ielec,1}(end,3)+2,elec_label(ielec),...
-%             'FontSize',15,'Color',[0 0 0],'FontWeight','bold','Parent',ui.mainaxiss);
-%         hold on
-%         
-%         
-%         line([ stand_pointxyz{ielec,1}(1,1) stand_pointxyz{ielec,1}(end,1)],...
-%             [stand_pointxyz{ielec,1}(1,2) stand_pointxyz{ielec,1}(end,2)],...
-%             'Color',[0 0 0.5],'LineWidth',1,'Parent',ui.mainaxisa);
-%         text(stand_pointxyz{ielec,1}(end,1)+2,stand_pointxyz{ielec,1}(end,2)+2,elec_label(ielec),...
-%             'FontSize',15,'Color',[0 0 0],'FontWeight','bold','Parent',ui.mainaxisa);
-%         hold on
-%         
-%         for icontact = 1:length(stand_pointxyz{ielec,1})
-%             % plot electrodes on coronal view
-%             ui.c_c(i) = scatter(ui.mainaxisc,stand_pointxyz{ielec,1}(icontact,1),stand_pointxyz{ielec,1}(icontact,3),ui.spoint,ui.cpoint,...
-%                 'Tag', num2str(i),'Parent',ui.mainaxisc,'ButtonDownFcn', @main_elec_ButtonDownFcn);
-%             
-%             % plot electrodes on sagittal view
-%             ui.s_c(i) = scatter(ui.mainaxiss,stand_pointxyz{ielec,1}(icontact,2),stand_pointxyz{ielec,1}(icontact,3),ui.spoint,ui.cpoint,...
-%                 'Tag', num2str(i),'Parent',ui.mainaxiss,'ButtonDownFcn', @main_elec_ButtonDownFcn);
-%             
-%             % plot electrodes on axial view
-%             ui.a_c(i) = scatter(ui.mainaxisa,stand_pointxyz{ielec,1}(icontact,1),stand_pointxyz{ielec,1}(icontact,2),ui.spoint,ui.cpoint,...
-%                 'Tag', num2str(i),'Parent',ui.mainaxisa,'ButtonDownFcn', @main_elec_ButtonDownFcn);
-%             i = i+1;
-%         end
-%         
-%         text(all_pointxyz{ielec,1}(end,1)+2,all_pointxyz{ielec,1}(end,2)+2,all_pointxyz{ielec,1}(end,3)+2,elec_label(ielec),...
-%             'FontSize',15,'Color',[0 0 0],'FontWeight','bold','Parent',ui.surfaxes,'PickableParts', 'None');
-%         
-%     end
-%     
     if ~isfield(ui,'array')
         for ielec = 1:size(subinfo.tkr_coordinate,1)
             ui.array(ielec) = scatter3(subinfo.tkr_coordinate(ielec,1),subinfo.tkr_coordinate(ielec,2),subinfo.tkr_coordinate(ielec,3), 30, [1 1 1],'filled',...
@@ -1922,8 +1396,8 @@ if filename ~= 0
             if any(ielec==subinfo.cum_chan_array)
                 ind=find(ielec==subinfo.cum_chan_array);
                 
-            ui.array_text(ind) = text(subinfo.tkr_coordinate(ielec,1)+5,subinfo.tkr_coordinate(ielec,2)+5,subinfo.tkr_coordinate(ielec,3)+5,subinfo.chan_name{ind}, ...
-               'fontsize',30,'FontWeight','demi' , 'Parent',ui.surfaxes, 'Visible', 'on', 'PickableParts', 'None');
+                ui.array_text(ind) = text(subinfo.tkr_coordinate(ielec,1)+5,subinfo.tkr_coordinate(ielec,2)+5,subinfo.tkr_coordinate(ielec,3)+5,subinfo.chan_name{ind}, ...
+                    'fontsize',30,'FontWeight','demi' , 'Parent',ui.surfaxes, 'Visible', 'on', 'PickableParts', 'None');
             end
         end
     else
@@ -1933,7 +1407,7 @@ if filename ~= 0
                 ind=find(ielec==subinfo.cum_chan_array);
                 set(ui.array_text(ind), 'Position', subinfo.tkr_coordinate(ielec,:)+5, 'PickableParts', 'None');
                 
-            end    
+            end
         end
     end
     
@@ -1943,21 +1417,7 @@ end
 fprintf(['success.\n'])
 end
 
-function main_elec_ButtonDownFcn(hObject,eventdata)
 
-global ui subinfo
-elec_index = str2double(get(hObject,'Tag'));
-if strcmpi(ui.c_c(elec_index).MarkerFaceColor,'none')
-    set(ui.c_c(elec_index),'MarkerFaceColor','r');
-    set(ui.s_c(elec_index),'MarkerFaceColor','r');
-    set(ui.a_c(elec_index),'MarkerFaceColor','r');
-else
-    set(ui.c_c(elec_index),'MarkerFaceColor','none');
-    set(ui.s_c(elec_index),'MarkerFaceColor','none');
-    set(ui.a_c(elec_index),'MarkerFaceColor','none');
-end
-
-end
 function connbutton_Callback(hObject,eventdata)
 
 global ui subinfo
@@ -1966,10 +1426,7 @@ if strcmpi(get(ui.connview,'Visible'),'On')
     set(ui.connview,'Visible','Off')
 else
     set(ui.connview,'Visible','On')
-%     if strfind(subinfo.method,'RMS') || strfind(subinfo.method,'Amplitude')
-%         caxis([30 1000])
-%     end
-%     colormap(cool)
+
 end
 
 if ~isfield(ui,'connmatrix')
@@ -1987,12 +1444,7 @@ if ~isfield(ui,'connmatrix')
         end
     end
     ui.connmatrix = imagesc(subinfo.connmat, 'Parent', ui.connaxes,'ButtonDownFcn', @connmat_ButtonDownFcn);
-    %     if subinfo.num_elec<9
-    %         conn_label = char((1:subinfo.num_elec)'+64);
-    %     elseif subinfo.num_elec>=9
-    %         conn_label = char([1:8 10:subinfo.num_elec+1]'+64);
-    %     end
-    
+
     
     
     chan_name_j = cell(subinfo.num_elec,1);
@@ -2014,15 +1466,6 @@ if ~isfield(ui,'connmatrix')
 end
 
 
-% if strcmpi(get(ui.connview,'Visible'),'On')
-%     set(ui.connview,'Visible','Off')
-% else
-%     set(ui.connview,'Visible','On')
-% %     if strfind(subinfo.method,'RMS') || strfind(subinfo.method,'Amplitude')
-% %         caxis([30 1000])
-% %     end
-% %     colormap(cool)
-% end
 end
 
 
@@ -2037,11 +1480,7 @@ set(ui.conn_cross,'Xdata',pt(1,1)-0.1,'Ydata',pt(1,2)+0.4,'Color',[0 1 0])
 connectivity = subinfo.connmat(y,x);
 xlabel = subinfo.conn_char(x);
 ylabel = subinfo.conn_char(y);
-% xind = num2str(x+1-find(subinfo.conn_char(x) == subinfo.conn_char, 1 ));
-% yind = num2str(y+1-find(subinfo.conn_char(y) == subinfo.conn_char, 1 ));
-%
-% set(ui.conn_index_r,'String',[xlabel xind])
-% set(ui.conn_index_s,'String',[ylabel yind])
+
 set(ui.conn_index_r,'String',xlabel{1})
 set(ui.conn_index_s,'String',ylabel{1})
 set(ui.conn_value,'String',num2str(connectivity))

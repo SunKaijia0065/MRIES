@@ -1,13 +1,13 @@
-function ccep_edf2mat_bh(varargin)
 % Convert data from edf format to mat
 % Writen by Yunxian Bai at 20171220
 % changed by Wang Liang at 20180129
-%
+% updata by Kaijia Sun
 % data structure:
 % # hospital:
 %       # subject:
 %             # edf folder (storing edf files, which can be splited by two electrodes)
 %
+function ccep_edf2mat_bh(varargin)
 Fs = 2000;
 if isempty(varargin)
     [filename,pathname] = uigetfile('*.*',  'Please select the edf file to be converted');
@@ -27,15 +27,10 @@ delete_channel = {'E', 'EDF Annotations','POL'};
 data(ismember(label,delete_channel),:)= [];
 label(ismember(label,delete_channel))= [];
 
-%DC_channel = find(cellfun(@(x) contains(x,'DC'), label)); % contains is R2017b function
 DC_channel = find(ismember(label,{'DC10'}));
 data = data([1:DC_channel-1,DC_channel+1:end, DC_channel],:);
 label = label([1:DC_channel-1,DC_channel+1:end, DC_channel]);
 
-% elec_not_ABC = find(cellfun(@(x) isempty(regexp(x(1), '[A-Z]')), label(1:end-1)));
-% elec_not_123 = find(cellfun(@(x) isempty(regexp(x(2), '\d')), label(1:end-1)));
-% data(union(elec_not_ABC, elec_not_123),:) = [];
-% label(union(elec_not_ABC, elec_not_123)) = [];
 elec_not_ABC = find(ismember(label,{'ECG','EMG1','EMG2','EMG3','EMG4','EMG5'}));
 data(elec_not_ABC,:) = [];
 label(elec_not_ABC) = [];
@@ -80,7 +75,6 @@ for i = 1:length(chan_ID)
     k= [] ;
     for j = 1:length(label)
         
-        %         elec_indx = ismember(label{j},chan_ID{i});
         Num=str2double(regexp(label{j},'\d*','match')');
         n = strfind(label{j},num2str(Num));
         if strcmp(label{j}(1:n-1),chan_ID{i})
@@ -88,7 +82,6 @@ for i = 1:length(chan_ID)
             order = [order;j];
         end
         
-        %         order = [order k];
     end
     [~,m] = sort(k);
     indx = [indx;order(m)];
@@ -156,23 +149,9 @@ else
 end
 difference = diff(locs);
 ind = find(difference>Fs*50&difference<Fs*54); % You many need to change 50 or 54 if the data length is not in the range (sec): 50-54
-% 
-% num_odd=sum(mod(ind,2)==0);
-% if num_odd>length(ind)/2
-%     ind=ind(find(mod(ind,2)==0));
-% else
-%     ind=ind(find(mod(ind,2)==1));
-% end
 
-
-% stim_elec = [];
-% for j = 1:length(elec_range)
-%     stim_elec =  [stim_elec cum_chan_per_elec(elec_range(j))+chan_range{j}];
-% end
-% stim_elec1(invalid_index) = [];
-% stim_elec2(invalid_index) = [];
 if size(stim_elec,1) ~= length(ind)
-    error('Please change the line 102 (50 or 54) parameters\n')
+    error('Please Check the edf_match.txt and .edf data\n')
 end
 if length(ind)==1
     fprintf('%s\n',['Generating file ccep_elec_' num2str(stim_elec(1,1)) '_' num2str(stim_elec(1,2)) '.mat'])

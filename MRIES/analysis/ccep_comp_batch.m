@@ -1,3 +1,6 @@
+%computing the response by batch
+%updated by Kaijia Sun
+
 function ccep_comp_batch(varargin)
 
 
@@ -44,20 +47,7 @@ else
     answer=varargin{2};
 end
 
-
-
-
-
 numelec = str2num(answer{1});
-% chan_range_info = answer{2};
-% brace1 = strfind(chan_range_info, '{');
-% brace2 = strfind(chan_range_info, '}');
-% semicolon = strfind(chan_range_info, ';');
-% cutinfo = [brace1 semicolon brace2];
-% for i = 1:length(cutinfo)-1
-%     chan_per_elec{i} = str2num(chan_range_info(cutinfo(i)+1:cutinfo(i+1)-1));
-% end
-
 for i = 1:length(numelec)
     chan_per_elec{i} = 1:numelec(i);
 end
@@ -107,14 +97,8 @@ for j =1:length(sort_files)
     elec1 = filename(indx(end-1)+1:indx(end)-1);
     elec2 = filename(indx(end)+1:end);
     fprintf('Stim on %s %s electrodes: ',elec1,elec2);
-%     if elec1==103
-%         numstim=49;
-%     end
-
      ccep_comp_cal(datapath,[str2num(elec1) str2num(elec2)],numstim,Fs,win,badelec,trigelec,numelec,chan_name);
-%     if elec1==103
-%         numstim=50;
-%     end
+
 end
 save([datapath filesep 'subj_elec_info.mat'],'numelec','chan_per_elec','total_elecs','win','badelec','trigelec','chan_name','Fs');
 cd([datapath filesep 'stimulationdata'])

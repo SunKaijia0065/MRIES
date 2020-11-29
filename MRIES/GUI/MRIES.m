@@ -1,8 +1,9 @@
+%MRIES main GUI
+%updated by Kaijia Sun
+%
+%
 function MRIES
-%
-%
-%
-%
+
 warning('off')
 close all
 %% Setting UI Objects and subject infomation

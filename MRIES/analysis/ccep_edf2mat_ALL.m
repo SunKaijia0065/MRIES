@@ -1,6 +1,7 @@
+% Convert data from edf format to mat as the edf_match.txt
+% updated by Kaijia Sun
+
 function ccep_edf2mat_ALL(varargin)
-
-
 if isempty(varargin)
     datapath = uigetdir('','Please choose the subject directory');
 else
@@ -32,27 +33,4 @@ fclose(fid);
 
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

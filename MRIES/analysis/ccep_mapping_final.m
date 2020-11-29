@@ -1,5 +1,7 @@
-function [n,stiLocation] = ccep_mapping_final(subinfo,value,label)
+% Computing interpolation result in 3D-volume visualization
+% updated 2020/11/27
 
+function [n,stiLocation] = ccep_mapping_final(subinfo,value,label)
 warning('off')
 files = dir([subinfo.mainpath filesep 'data' filesep 'ccep*.mat']);
 elec1 = [];
@@ -7,8 +9,8 @@ elec2 = [];
 for j =1:length(files)
     [~, filename, ext] = fileparts(files(j).name);
     indx = strfind(filename,'_');
-    elec1 = [elec1;str2double(filename(indx(end-1)+1:indx(end)-1))]; %ok<ST2NM>
-    elec2 = [elec2;str2double(filename(indx(end)+1:end))]; 
+    elec1 = [elec1;str2double(filename(indx(end-1)+1:indx(end)-1))];
+    elec2 = [elec2;str2double(filename(indx(end)+1:end))];
 end
 elec1 = sort(elec1); elec2 = sort(elec2);
 
@@ -19,7 +21,7 @@ elseif exist([subinfo.mainpath filesep 'brain3D' filesep 'autocoordinates.mat' ]
     coordinates = load([subinfo.mainpath filesep 'brain3D' filesep 'autocoordinates.mat']);
     coordinates = coordinates.savecoors(:,end-2:end);
 end
-    
+
 vox2ras = [temInfo.hdr.hist.srow_x;temInfo.hdr.hist.srow_y;temInfo.hdr.hist.srow_z;0 0 0 1];
 elecpos = vox2ras\[coordinates ones(size(coordinates,1),1)]';
 elecpos = round(elecpos(1:3,:)');
@@ -35,16 +37,12 @@ if strcmp(method,'gauss')
 elseif strcmp(method,'linear+nearest')
     
     n = 2;
-    %     bb = [ round(temInfo.hdr.hist.qoffset_x)  round(temInfo.hdr.hist.qoffset_y) round(temInfo.hdr.hist.qoffset_z)
-    %         temInfo.hdr.dime.dim(2)-abs(round(temInfo.hdr.hist.qoffset_x))-1   temInfo.hdr.dime.dim(3)-abs(round(temInfo.hdr.hist.qoffset_y))-1 temInfo.hdr.dime.dim(4)-abs(round(temInfo.hdr.hist.qoffset_z))-1 ];
-    % interpolate
-    dmax1 = 5;  % changed by Liang 2017/04/23
+    dmax1 = 5;
     [data_interpolated,index1] = ccep_interpolate_ln(ndim,data,dmax1,n,'nearest');
-    dmax2 = 10;  % changed by Liang 2017/04/23
+    dmax2 = 10; 
     [di2,index2] = ccep_interpolate_ln(ndim,data,dmax2,n,'linear');
     index3 = intersect(find(isnan(data_interpolated)),index2);
     data_interpolated(index3) = di2(index3);
-%     data_interpolated=permute(data_interpolated,[2 1 3]);
     temInfo.hdr.dime.dim(2:4) = size(data_interpolated);
 end
 
@@ -108,9 +106,6 @@ aind = 1:prod(ndim);
 
 brain_vol = single([x;y;z]');
 
-% n1=length(1:ndim(1));
-% n2=length(1:ndim(2));
-% n3=length(1:ndim(3));
 Ic = [];
 dmax = dmax^2;
 for ie = 1:size(data,1)
@@ -119,7 +114,6 @@ for ie = 1:size(data,1)
 end
 Ic = unique(Ic);
 vc = double(brain_vol(Ic,:));
-% data_interpolated = NaN*zeros(n2,n1,n3); % changed by Liang 2017/04/23
 data_interpolated(Ic) = griddata(data(:,1),data(:,2),data(:,3),data(:,4),vc(:,1),vc(:,2),vc(:,3),method);
 
 end

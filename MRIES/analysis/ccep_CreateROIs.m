@@ -1,7 +1,7 @@
-
-
-function coordinates = ccep_CreateROIs(subinfo)
 % Create ROI based on the electrode coordinates
+% updatad by Kaijia Sun
+function coordinates = ccep_CreateROIs(subinfo)
+
 filename = 'elec_image.nii';
 temInfo = load_untouch_nii([subinfo.mainpath filesep 'brain3D' filesep 'T1.nii']);
 if exist([subinfo.mainpath filesep 'brain3D' filesep 'coordinates.txt' ],'file')
@@ -57,11 +57,6 @@ if ~exist([subinfo.mainpath filesep 'brain3D' filesep filename],'file')
     
     % Build an array of coordinates for each and every voxel in the mask
     
-    % PMat = spm_imatrix(P_HDR.mat);
-    % xSize = PMat(7);
-    % ySize = PMat(8);
-    % zSize = PMat(9);
-    
     xOrds = (1:dim(1))'*ones(1,dim(2));
     yOrds = ones(dim(1),1)*(1:dim(2));
     xOrds = xOrds(:)';
@@ -115,6 +110,3 @@ if ~exist([subinfo.mainpath filesep 'brain3D' filesep filename],'file')
     fprintf('\nFinished Building ROI Image.\n');
 end
 
-%
-% All done.
-%

@@ -4,8 +4,8 @@ stimulation. This folder contains Matlab functions from the MRIES, all released
 under the MIT license.
 
 ## Sub-directories:
-- /MRIES-the MRIES toolbox
-- /example-Example subject using the MRIES
+- /MRIES - the MRIES toolbox
+- /example - example subject using the MRIES
 
 ## To use MRIES:
 1. Start Matlab
@@ -17,8 +17,7 @@ under the MIT license.
 
 ## Requirements
 nifti:
-https://www.mathworks.com/matlabcentral/fileexchange/8797-tools-for-nifti-and-
-analyze-image
+https://www.mathworks.com/matlabcentral/fileexchange/8797-tools-for-nifti-and-analyze-image
 
 
 fieldtrip:
