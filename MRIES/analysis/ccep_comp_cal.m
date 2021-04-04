@@ -157,6 +157,9 @@ val_elecs=setdiff(total_elecs,trigelec);
 
 
 %% response detection
+locs_sec = locs./Fs;
+badstim = [];
+locs_sec(badstim)=[];
 
 ccep_HF = cell(length(val_elecs),1);
 ccep_arti=cell(length(val_elecs),1);
