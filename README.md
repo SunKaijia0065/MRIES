@@ -1,21 +1,21 @@
 # MRIES
-a Matlab toolbox for mapping the responses to intracranial electrical
-stimulation. This folder contains Matlab functions from the MRIES, all released
-under the MIT license.
+A Matlab toolbox to auto-process and visualize the cortical responses to single pulse electrical stimulation. This folder contains Matlab functions of the MRIES and example data  all released under the MIT license.
 
-## Sub-directories:
-- /MRIES - the MRIES toolbox
-- /example - example subject using the MRIES
+### Sub-directories:
+- /MRIES &ensp;-&ensp; the MRIES toolbox (The tutorial can be seen in *MRIES_tutorial.md*)
+- /example &ensp;-&ensp; example subject using the MRIES (Because of the limitation of uploaded filesize, the example data is upload at figshare.)
+- /MRIES_tutorial.md &ensp;- &ensp; Tutorial of MRIES (Showing the MRIES Processing pipline and visualization by example data.)
 
-## To use MRIES:
-1. Start Matlab
+### To use MRIES:
+1. Start Matlab.
 
-2. Use Matlab to navigate to the folder containing MERIS
+2. Add the “*MRIES*” folder to path of Matlab. 
 
-3. Type "MRIES" at the Matlab command prompt ">>" and press enter
+3. Type "MRIES" at the Matlab command prompt ">>" and press enter.
 
+4. The detailed usage steps are showed in the “*MRIES_tutorial.md*” file
 
-## Requirements
+### Requirements
 nifti:
 https://www.mathworks.com/matlabcentral/fileexchange/8797-tools-for-nifti-and-analyze-image
 
