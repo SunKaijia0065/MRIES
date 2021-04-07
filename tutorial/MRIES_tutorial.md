@@ -26,8 +26,19 @@ The data would inputted in MRIES are three parts:
 - Intracranial electrodes location file : computed by FIELD(引用).
 
 This is the inputting file structure of the example data. 
-<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/datainputall.png"  height="300" /></div>
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/datainputall.png"  height="200" /></div>
 Below we will take the example data to introduce these four parts in detail.
 
-##### 1) Electrical stimulation-response data
+#### 1) Electrical stimulation-response data
+Electrical stimulation-response data should be store in *edf* folder as *.edf* format. 
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf.png"  height="200" /></div>
+
+The electrode and channel information matched to *.edf* file should typed in the *edf_match.txt* file. 
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf_match.png"  height="200" /></div>
+
+#### 2) Reconstruction result
+
+#### 3) Subject infomation file
+
+#### 4) Intracranial electrodes location file
 
