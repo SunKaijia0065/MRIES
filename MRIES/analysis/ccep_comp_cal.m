@@ -21,9 +21,12 @@ function [z_N1,peak_N1, latency_N1] = ccep_comp_cal(datapath,stimelec,numstim,Fs
 % Date: 2015-05-10
 %
 % Changed on 2018-01-01 Liang Wang
+%
+%
+% Kaijia Sun 20210405
 
 
-
+global subinfo
 cd([datapath filesep 'data'])
 filename = ['ccep_elec_' num2str(stimelec(1)) '_' num2str(stimelec(2)), '.mat'];
 if nargin < 5
@@ -45,18 +48,27 @@ end
 fprintf('%s \n', filename);
 
 data = double(data); % row: electrodes; column: time courses
-replacetime=5; %artif
+
+highPass = subinfo.highPass;
+baseTime = subinfo.baseTime; %baseline time
+zremove  = subinfo.zremove;
+zthre    = subinfo.zthre ; % threshold of N1,P1
+sigN1Time   = subinfo.sigN1Time; %time range of N1,P1
+
+highBand = subinfo.highBand; %high response frequence range
+replacetime=subinfo.replacetime; %artifact time
+
 data(badelec,:)=0;
 
 
-%% low pass filter
-lower_bound_bt = 0.1;
+%% high pass filter
+
 total_elecs = 1:size(data,1)-1;
 good_elecs=setdiff(total_elecs,[badelec trigelec]);
 for ielec = good_elecs
 %     fprintf('filtering elec %d \n', ielec);
 
-    [data(ielec,:)]=ft_preproc_highpassfilter(data(ielec,:),Fs,lower_bound_bt,4,[],'twopass');
+    [data(ielec,:)]=ft_preproc_highpassfilter(data(ielec,:),Fs,highPass,4,[],'twopass');
 end
 
 data = data - ones(size(data,1),1)*mean(data);
@@ -66,13 +78,9 @@ data = data - ones(size(data,1),1)*mean(data);
 peakflg = 1;
 while peakflg
     if isempty( trigelec)
-        stimonset_elec = input('Select an electrode with clear stim effect []:');
-    else
-        stimonset_elec = trigelec;
-        if size(data) > trigelec
-            data(trigelec+1:end,:)=[];
-        end
+        trigelec = input('Select an electrode with clear stim effect:');
     end
+    stimonset_elec = trigelec;  
     
     if ismember(stimonset_elec,stimelec)
         peakflg = 1;
@@ -117,21 +125,21 @@ while peakflg
     end
     
     
-    %%
+    %% reset the start of stimulation
     [locs, indx]=sort(locs);
     
     pks = pks(indx);
     for i =1:length(locs) 
-        beforeIndex=locs(i)-10:locs(i);
+        beforeIndex=locs(i)-Fs*0.01:locs(i);
         seg=data(stimonset_elec,beforeIndex);
         segIndex=find(seg<min(seg)+0.001*(max(seg)-min(seg)));
-        locs(i)=locs(i)-10-1+segIndex(end);
+        locs(i)=locs(i)-Fs*0.01-1+segIndex(end);
     end
     
-    
+    %% test the whole epoch of all stimulation
     
     interval = diff(locs);
-    locs_test = interval > 0.9*Fs & interval < 1.25*Fs;
+    locs_test = interval > 0.9*Fs & interval < 1.1*Fs;
     if any(~locs_test) || locs(end) > (size(data,2)-win(2)*Fs)
         peakflg = 1;
         warning('Please re-check the sorting process')
@@ -166,24 +174,21 @@ ccep_arti=cell(length(val_elecs),1);
 for ielec = val_elecs
     
     epoch_data = datamat(data(ielec,:)',locs_sec,Fs,win);
-    baseline = mean(epoch_data((win(1)-0.2)*Fs:win(1)*Fs-1,:));
+    baseline = mean(epoch_data((win(1)-baseTime)*Fs:win(1)*Fs-1,:));
     epoch_data = epoch_data - ones(size(epoch_data,1),1)*baseline;
-    %% the high-frecquence
+    %% replace artifict part
     epoch_data_HF=replace_artifict(epoch_data,Fs,replacetime,win);
-%     for i = 1:size(epoch_data_HF,2)
-%         epoch_data_HFadd(:,i)=bandpass(epoch_data_HF(:,i),[70 170 ],Fs);
-%     end
+
     %% remove bad trials
-    badtrials=remwave(epoch_data);
+    badtrials=remwave(epoch_data,zremove);
     %         figure,plot(epoch_data);
     %         figure,plot(epoch_data(:,largewave));
     elec_bad_trials{ielec} = badtrials;
     epoch_data(:,badtrials) = [];
     epoch_data_HF(:,badtrials) = [];
     %% ccep data matrix
-    ccep_mat{ielec,1} = epoch_data;
+    ccep_mat{ielec,1} = epoch_data;%every cell is time*trials
     ccep_arti{ielec,1} = epoch_data_HF;
-    
     ccep = [ccep mean(epoch_data,2)];
     
 end
@@ -217,7 +222,7 @@ for ielec = val_elecs
     ccep_arti{ielec}=sig_test_ccep_arti;
     sigOne=reshape(sig_test_ccep_arti,1,numel(sig_test_ccep_arti));
     %     sigBand=bandpass(sigOne,[70 170 ],Fs);%signal
-    sigBand=ft_preproc_bandpassfilter(sigOne,Fs,[70 170],8,[],'twopass');
+    sigBand=ft_preproc_bandpassfilter(sigOne,Fs,highBand,8,[],'twopass');
     test=reshape(sigBand,size(sig_test_ccep_arti));
     
     
@@ -227,7 +232,7 @@ for ielec = val_elecs
     sig_test_ccep_HF=reshape(enveloponly,size(sig_test_ccep_arti));
     ccep_HF{ielec}=sig_test_ccep_HF;
     sig_test_ccep_envelopO=reshape(enveloponly,size(sig_test_ccep_arti));
-    bs = mean(sig_test_ccep_envelopO((win(1)-0.2)*Fs:win(1)*Fs-1,:));
+    bs = mean(sig_test_ccep_envelopO((win(1)-baseTime)*Fs:win(1)*Fs-1,:));
     sig_test_ccep_envelopO = sig_test_ccep_envelopO - ones(size(sig_test_ccep_envelopO,1),1)*bs;
     
     envelopMean=mean(sig_test_ccep_envelopO,2);
@@ -245,16 +250,16 @@ for ielec = val_elecs
 
     slidingtime = 0.010;
     %% Z score,significant point by point
-    win0=0.1;
+
     
-    sig_test_ccep=sig_test_ccep(ceil(size(sig_test_ccep,1)*(1-(win0+win(2))/(win(1)+win(2)))):end,:);
-    bs_mean = mean(sig_test_ccep(1:win0*Fs-slidingtime*Fs,:),2);
+    sig_test_ccep=sig_test_ccep(ceil(size(sig_test_ccep,1)*(1-(baseTime+win(2))/(win(1)+win(2)))):end,:);
+    bs_mean = mean(sig_test_ccep(1:baseTime*Fs,:),2);
     bs_std = std(bs_mean,0,1);
     m_ccep = mean(sig_test_ccep,2);
     z = (m_ccep-mean(bs_mean))./bs_std;
     pval = 1-cdf('Normal',z,0,1);%
-    h = abs(z) > 6; % 6 SD
-    h(1:round((win0+0.002)*Fs),:) = 0;
+    h = abs(z) > zthre; % 6 SD
+    h(1:round((baseTime+0.002)*Fs),:) = 0;
     %% Find connected components in the significant indices (at least lasting 10ms)
     CC = bwconncomp(h,4);
     for icluster = 1:CC.NumObjects
@@ -268,8 +273,8 @@ for ielec = val_elecs
     %% find the earlier N1 latency and amplitude
     CC_new = bwconncomp(h,4);
     all_ccep(:,ielec) = m_ccep;
-    max_N1_indx = win0*Fs + 0.05*Fs; %% N1 is less than 0.05 sec
-    min_N1_indx = win0*Fs + 0.007*Fs; %% N1 is larger than 0.007 sec
+    max_N1_indx = baseTime*Fs + sigN1Time(2)*Fs; %% N1 is less than 0.05 sec
+    min_N1_indx = baseTime*Fs + sigN1Time(1)*Fs; %% N1 is larger than 0.007 sec
     %     ncount = 1;
     val = [];val_indx = [];
     for icluster = 1:CC_new.NumObjects
@@ -300,7 +305,7 @@ for ielec = val_elecs
                 
             end
             peak_N1(ielec,1) = val(1);
-            latency_N1(ielec,1) = val_indx(1)/Fs-win0;
+            latency_N1(ielec,1) = val_indx(1)/Fs-baseTime;
             z_N1(ielec,1)=z(val_indx(1));
             %% find the full width at half-maximum
             k=m_ccep > val(1)/2;
@@ -318,8 +323,8 @@ for ielec = val_elecs
         end
     end
     %% find the earlier P1 latency and amplitude
-    max_P1_indx = win0*Fs + 0.05*Fs;
-    min_P1_indx = win0*Fs + 0.007*Fs;
+    max_P1_indx = baseTime*Fs + sigN1Time(2)*Fs;
+    min_P1_indx = baseTime*Fs + sigN1Time(1)*Fs;
     val = [];val_indx = [];
     for icluster = 1:CC_new.NumObjects
         p = CC_new.PixelIdxList{icluster};
@@ -329,7 +334,7 @@ for ielec = val_elecs
         [peaks indx_i] = max(peak_i);
         locs = loc_i(indx_i);
         if mean(m_ccep(p)) > 0 && ~isempty(q)
-            if max(peaks) > min_amplitude % a peak does exceed 20 uV
+            if max(peaks) > min_amplitude % 
                 val = [val;peaks];
                 val_indx = [val_indx;p(locs)];
             else
@@ -351,7 +356,7 @@ for ielec = val_elecs
                 
             end
             peak_P1(ielec,1) = val(1);
-            latency_P1(ielec,1) = val_indx(1)/Fs-win0;
+            latency_P1(ielec,1) = val_indx(1)/Fs-baseTime;
             z_P1(ielec,1)=z(val_indx(1));
             %% find the full width at half-maximum
             k=m_ccep < val(1)/2;
@@ -452,7 +457,7 @@ function [largewave, points] = remwave(data,stdtime)
 % data   (input time series as a column vector) - required
 %
 if nargin < 2
-    stdtime = 5; % 3 standard deviation
+    stdtime = 3; % 3 standard deviation
 end
 low=nanmean(data,2)-stdtime*nanstd(data,0,2);
 high=nanmean(data,2)+stdtime*nanstd(data,0,2);

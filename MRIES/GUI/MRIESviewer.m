@@ -20,7 +20,7 @@ subinfo.numchan = [];
 subinfo.num_elec = [];
 subinfo.chan_array = [];
 subinfo.Fs = 2000;
-subinfo.method = 'RMS';
+subinfo.method = '';
 subinfo.peak = [];
 subinfo.connmat = [];
 subinfo.T = 0;
@@ -158,7 +158,7 @@ ui.method_text = uicontrol('Style', 'Text', 'Parent', ui.mainpanel, 'Units', 'No
     'String', 'Response Indicator', 'FontSize', 12);
 
 ui.method = uicontrol('Style', 'Popupmenu', 'Parent', ui.mainpanel, 'Units', 'Normalized', 'Position', [0.5 0.5 0.4 0.06], ...
-    'String',{'','RMS','RMS_rare','Amplitude','Latency','SNR','L_SNR','L_SNRPeak';}, 'Value', 1, 'FontSize', 12, 'Callback', @method_Callback);
+    'String',{'','HF_str','HF_lat','LF_amp','LF_Zamp','LF_lat','LF_sRMS','LF_RMS';}, 'Value', 1, 'FontSize', 12, 'Callback', @method_Callback);
 
 % Set the mainpath on the gui
 P = mfilename('fullpath');
@@ -1444,7 +1444,7 @@ if ~isfield(ui,'connmatrix')
         end
     end
     ui.connmatrix = imagesc(subinfo.connmat, 'Parent', ui.connaxes,'ButtonDownFcn', @connmat_ButtonDownFcn);
-
+    set(ui.connmatrix,'alphadata',(subinfo.connmat~=0))
     
     
     chan_name_j = cell(subinfo.num_elec,1);

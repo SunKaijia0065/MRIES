@@ -2,58 +2,62 @@
 % updated by Kaijia Sun
 function ccep_connectivity_matrix(varargin)
 %patient information
+global subinfo
 if isempty(varargin)
     mainpath = uigetdir('','Please choose the subject directory');
 else
     mainpath=varargin{1};
 end
 
+
 coordinates = load([mainpath filesep 'brain3D' filesep 'autocoordinates.mat']);
 coordinates = coordinates.savecoors(:,end-2:end);
 contactdist = dist(coordinates');
 
-if exist([mainpath filesep 'subjectinfo.txt'],'file')
+
+if ~isempty(subinfo)
+    chan_array = str2num(subinfo.answer{1});
+    num_elec = length(chan_array);
+    temp_name = subinfo.answer{2};
+    
+elseif exist([mainpath filesep 'subjectinfo.txt'],'file')
     fid = fopen([mainpath filesep 'subjectinfo.txt']);
     tempinfo = textscan(fid,'%s');
     fclose(fid);
     tempinfo = tempinfo{1};
-    name = tempinfo{2};
-    sex = tempinfo{4};
-    age = tempinfo{6};
-    sphere = tempinfo{8};
     num_elec = str2num(tempinfo{10});
-    chan_array = cellfun(@str2num,tempinfo(12:12+str2num(tempinfo{10})-1));
-    chan_array = chan_array';
-    cum_chan_array = cumsum(chan_array);
-    
-    
-    
+    chan_array = (cellfun(@str2num,tempinfo(12:12+str2num(tempinfo{10})-1)))';
     temp_name = cell2mat(tempinfo(12+str2num(tempinfo{10})+1:end));
-    
-    
-    cutinfo = strfind(temp_name, ';');
-    for i = 1:length(cutinfo)
-        if i == 1
-            chan_name{i} = temp_name(1:cutinfo(i)-1);
-        else
-            
-            chan_name{i} = temp_name(cutinfo(i-1)+1:cutinfo(i)-1);
-        end
-    end
-    
-    conn_char = cell(cum_chan_array(end),1);
-    
-    n = 0;
-    for ien = 1:num_elec
-        for j = 1:chan_array(ien)
-            n = n + 1;
-            conn_char{n} = [chan_name{ien} num2str(j)];
-        end
-    end
     
 else
     fprintf('Subject Infomation file not found,Please load manually.\n')
 end
+
+    cum_chan_array = cumsum(chan_array);    
+
+    
+    
+cutinfo = strfind(temp_name, ';');
+for i = 1:length(cutinfo)
+    if i == 1
+        chan_name{i} = temp_name(1:cutinfo(i)-1);
+    else
+
+        chan_name{i} = temp_name(cutinfo(i-1)+1:cutinfo(i)-1);
+    end
+end
+
+conn_char = cell(cum_chan_array(end),1);
+
+n = 0;
+for ien = 1:num_elec
+    for j = 1:chan_array(ien)
+        n = n + 1;
+        conn_char{n} = [chan_name{ien} num2str(j)];
+    end
+end
+    
+
 
 
 chan_name=conn_char;
@@ -63,25 +67,26 @@ cum_chan_per_elec = cumsum(chan_per_elec);
 num_chan_per_elec = sort([1 cum_chan_per_elec cum_chan_per_elec(1:end-1)+1]);
 
 
-connectivitySNR= zeros(sum(chan_per_elec));
-connectivitySNR_L =zeros(sum(chan_per_elec));
-connectivityA = zeros(sum(chan_per_elec));
-connectivityZA = zeros(sum(chan_per_elec));
-connectivityL = zeros(sum(chan_per_elec));
-connectivityRMS = zeros(sum(chan_per_elec));
-connectivityRMSR= zeros(sum(chan_per_elec));
+connectivity_HF_str = zeros(sum(chan_per_elec));
+connectivity_HF_lat = zeros(sum(chan_per_elec));
+connectivity_LF_amp = zeros(sum(chan_per_elec));
+connectivity_LF_Zamp= zeros(sum(chan_per_elec));
+connectivity_LF_lat = zeros(sum(chan_per_elec));
+connectivity_LF_sRMS= zeros(sum(chan_per_elec));
+connectivity_LF_RMS = zeros(sum(chan_per_elec));
 
 
 % time range of RMS (sec) after the stimuluation
-cceprange = [0.007 0.3];
+rmsrange = subinfo.rmsrange;%RMS time range
 % time windows for the epoched data
-win = [0.1 0.5];
+baseTime=subinfo.baseTime;%baseTime
 % sampling rate
-Fs = 2000;
-cceprange_point = cceprange*Fs;
-win_point = win*Fs;
-indx = win_point(1)+(cceprange_point(1):cceprange_point(2));
+Fs = str2num(subinfo.answer{5});%read
+fwhm_durRange=subinfo.duraRange*Fs;%
 
+rmsrange_point = rmsrange*Fs;
+basePoint = baseTime*Fs;
+indx = basePoint+(rmsrange_point(1):rmsrange_point(2));
 
 
 
@@ -107,61 +112,61 @@ for i = 1:sum(chan_per_elec)
         %% snr
         
         snrPlog=-log(snrP);
-        connectivitySNR(i,:)=snrPlog;
+        connectivity_HF_str(i,:)=snrPlog;
         
         %% latency_peak
-        connectivitySNR_L(i,:)=latency_snrPeak;
+        connectivity_HF_lat(i,:)=latency_snrPeak;
         %% amplitude peak
-        fwhm_dur_all(fwhm_dur_all<= 100) = 1;
+        fwhm_dur_all((fwhm_dur_all<= fwhm_durRange(2))&(fwhm_dur_all>= fwhm_durRange(1))) = 1;
         peak_final(fwhm_dur_all ~=1) = nan;
         
-        connectivityA(i,:) = abs(peak_final);
+        connectivity_LF_amp(i,:) = abs(peak_final);
         %% z_amplitude
-        fwhm_dur_all(fwhm_dur_all<= 100) = 1;
+        fwhm_dur_all((fwhm_dur_all<= fwhm_durRange(2))&(fwhm_dur_all>= fwhm_durRange(1))) = 1;
         z_final(fwhm_dur_all ~=1) = nan;
         
-        connectivityZA(i,:) = abs(z_final);
+        connectivity_LF_Zamp(i,:) = abs(z_final);
         %% latency
         %% evoked timing range
-        fwhm_dur_all(fwhm_dur_all<= 100) = 1;
+        fwhm_dur_all((fwhm_dur_all<= fwhm_durRange(2))&(fwhm_dur_all>= fwhm_durRange(1))) = 1;
         latency_final(fwhm_dur_all ~=1) = nan;
-        connectivityL(i,:) = latency_final;
+        connectivity_LF_lat(i,:) = latency_final;
         %% RMS
         rms = sqrt(sum(all_ccep(indx,:).^2)./length(indx));
         %% evoked timing range
-        fwhm_dur_all(fwhm_dur_all<= 100) = 1;
+        fwhm_dur_all((fwhm_dur_all<= fwhm_durRange(2))&(fwhm_dur_all>= fwhm_durRange(1))) = 1;
         
         rms(fwhm_dur_all ~=1) = nan;
-        connectivityRMS(i,:) = rms;
+        connectivity_LF_sRMS(i,:) = rms;
         %% RMS rare
         % RMS
         all_ccep_mask = all_ccep;
         rms = sqrt(sum(all_ccep_mask(indx,:).^2)./length(indx));
-        connectivityRMSR(i,:) = rms;
+        connectivity_LF_RMS(i,:) = rms;
         
         %% distance to delete
         artifact_range_mm = 5;
         artifact_elecs_mm = setdiff(find(contactdist(stimelec(1),:) < artifact_range_mm |  contactdist(stimelec(2),:) < artifact_range_mm), stimelec);
         artifact_elecs = artifact_elecs_mm;
         
-        connectivitySNR(i,artifact_elecs) = 0;
-        connectivitySNR_L(i,artifact_elecs) = 0;
-        connectivityA(i,artifact_elecs) = 0;
-        connectivityZA(i,artifact_elecs) = 0;
-        connectivityL(i,artifact_elecs) = 0;
-        connectivityRMS(i,artifact_elecs) = 0;
-        connectivityRMSR(i,artifact_elecs) = 0;
+        connectivity_HF_str(i,artifact_elecs) = 0;
+        connectivity_HF_lat(i,artifact_elecs) = 0;
+        connectivity_LF_amp(i,artifact_elecs) = 0;
+        connectivity_LF_Zamp(i,artifact_elecs) = 0;
+        connectivity_LF_lat(i,artifact_elecs) = 0;
+        connectivity_LF_sRMS(i,artifact_elecs) = 0;
+        connectivity_LF_RMS(i,artifact_elecs) = 0;
         
         
         
     else
-        connectivitySNR(i,:) = 0;
-        connectivitySNR_L(i,:) = 0;
-        connectivityA(i,:) = 0;
-        connectivityZA(i,:) = 0;
-        connectivityL(i,:) = 0;
-        connectivityRMS(i,:) = 0;
-        connectivityRMSR(i,:) = 0;
+        connectivity_HF_str(i,:) = 0;
+        connectivity_HF_lat(i,:) = 0;
+        connectivity_LF_amp(i,:) = 0;
+        connectivity_LF_Zamp(i,:) = 0;
+        connectivity_LF_lat(i,:) = 0;
+        connectivity_LF_sRMS(i,:) = 0;
+        connectivity_LF_RMS(i,:) = 0;
     end
     
     
@@ -171,9 +176,9 @@ end
 
 %the same contact
 
-connectivtiys={connectivitySNR,connectivitySNR_L,connectivityA,connectivityZA,...
-    connectivityL,connectivityRMS,connectivityRMSR};
-connectivityNames={'SNR','L_SNRPeak','Amplitude','z_Amplitude','Latency','RMS','RMS_rare'};
+connectivtiys={connectivity_HF_str,connectivity_HF_lat,connectivity_LF_amp,connectivity_LF_Zamp,...
+    connectivity_LF_lat,connectivity_LF_sRMS,connectivity_LF_RMS};
+connectivityNames={'HF_str','HF_lat','LF_amp','LF_Zamp','LF_lat','LF_sRMS','LF_RMS'};
 
 for i = 1:length(connectivtiys)
     connectivity=connectivtiys{i};

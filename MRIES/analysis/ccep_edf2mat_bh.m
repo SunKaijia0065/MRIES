@@ -1,21 +1,38 @@
 % Convert data from edf format to mat
 % Writen by Yunxian Bai at 20171220
 % changed by Wang Liang at 20180129
-% updata by Kaijia Sun
+% updata by Kaijia Sun  at 20210405
 % data structure:
 % # hospital:
 %       # subject:
 %             # edf folder (storing edf files, which can be splited by two electrodes)
 %
 function ccep_edf2mat_bh(varargin)
-Fs = 2000;
+global subinfo
+
+
+if ~isempty(subinfo)
+    Fs =str2double(subinfo.answer{5});
+    num_sti=str2double(subinfo.answer{4});
+else
+    Fs=2000;
+    num_sti=50;
+end
+
+if ~isempty(subinfo.setting)
+    makerChannel=subinfo.setting{1};
+    
+else
+    makerChannel = 'DC10';
+end
+
 if isempty(varargin)
     [filename,pathname] = uigetfile('*.*',  'Please select the edf file to be converted');
 else
     filename = varargin{1};
     pathname = varargin{2};
 end
-fprintf('%s\n',['The selected file is ' filename]);
+fprintf('%s\n',['The converted file is ' filename]);
 cd(pathname)
 [hdr, data] = edfRead(filename);
 Annotation = data(end,:);
@@ -27,15 +44,24 @@ delete_channel = {'E', 'EDF Annotations','POL'};
 data(ismember(label,delete_channel),:)= [];
 label(ismember(label,delete_channel))= [];
 
-DC_channel = find(ismember(label,{'DC10'}));
-data = data([1:DC_channel-1,DC_channel+1:end, DC_channel],:);
-label = label([1:DC_channel-1,DC_channel+1:end, DC_channel]);
+
+if ~isempty(makerChannel)
+    DC_channel = find(ismember(label,makerChannel));
+    data = data([1:DC_channel-1,DC_channel+1:end, DC_channel],:);
+    label = label([1:DC_channel-1,DC_channel+1:end, DC_channel]);
+end
 
 elec_not_ABC = find(ismember(label,{'ECG','EMG1','EMG2','EMG3','EMG4','EMG5'}));
 data(elec_not_ABC,:) = [];
 label(elec_not_ABC) = [];
 
-if exist(['..' filesep 'subjectinfo.txt'],'file')
+if ~isempty(subinfo)
+    chan_array = str2num(subinfo.answer{1});
+    num_elec = length(chan_array);
+    chan_label{1} = subinfo.answer{2};
+    
+    
+elseif exist(['..' filesep 'subjectinfo.txt'],'file')
     fid = fopen(['..' filesep 'subjectinfo.txt']);
     for n = 1:4
         tline = fgetl(fid);
@@ -96,7 +122,7 @@ whole_data = data(index,:);
 
 clear data;
 
-
+%% read .edf info
 prompt = {'Number of contact per electrde: eg. [16 14 10 16 14 14 14 8 10 10]',...
     'Label of electrode, eg. [1 2]',...
     'Contact of electrode, eg. {[1:10, 13:15]; [2:8, 10:13]}' };
@@ -148,10 +174,10 @@ else
     [~,locs] = findpeaks((-1).*double(Annotation),'MINPEAKDISTANCE',0.5*Fs,'MinPeakHeight',abs(mn)*0.8);
 end
 difference = diff(locs);
-ind = find(difference>Fs*50&difference<Fs*54); % You many need to change 50 or 54 if the data length is not in the range (sec): 50-54
+ind = find(difference>(num_sti*Fs)&difference<((num_sti+4)*Fs)); 
 
 if size(stim_elec,1) ~= length(ind)
-    error('Please Check the edf_match.txt and .edf data\n')
+    error('The edf_match.txt and raw .edf file cannot match. Please Check them.')
 end
 if length(ind)==1
     fprintf('%s\n',['Generating file ccep_elec_' num2str(stim_elec(1,1)) '_' num2str(stim_elec(1,2)) '.mat'])
@@ -160,16 +186,14 @@ if length(ind)==1
 else
     for i = 1:length(ind)
         fprintf('%s\n',['Generating file ccep_elec_' num2str(stim_elec(i,1)) '_' num2str(stim_elec(i,2)) '.mat'])
-        if locs(ind(i))<1000
-            data = whole_data(:,1:locs(ind(i)+1)+4000);
-        elseif size(whole_data,2)<locs(ind(i)+1)+4000
-            data = whole_data(:,locs(ind(i))-1000:end);
+        if locs(ind(i))<0.5*Fs
+            data = whole_data(:,1:locs(ind(i)+1)+2*Fs);
+        elseif size(whole_data,2)<locs(ind(i)+1)+2*Fs
+            data = whole_data(:,locs(ind(i))-0.5*Fs:end);
         else
-            data = whole_data(:,locs(ind(i))-1000:locs(ind(i)+1)+4000);
+            data = whole_data(:,locs(ind(i))-0.5*Fs:locs(ind(i)+1)+2*Fs);
         end
         % output the valid pair stimuluation
         save(['ccep_elec_' num2str(stim_elec(i,1)) '_' num2str(stim_elec(i,2))], 'data');
     end
 end
-%% if you already install EEGLAB, you can check one of the data using the following command
-% eegplot(data(1:end,:),'srate',Fs,'winlength',10,'dispchans',20,'spacing',3200,'position',[30 30 1500 1200]);

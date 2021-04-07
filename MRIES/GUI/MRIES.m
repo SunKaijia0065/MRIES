@@ -10,32 +10,42 @@ close all
 global ui subinfo
 
 fontname= 'Times New Roman';
-fontsize = 15;
+fontsize = 18;
 %intergret
 screensize = get(0,'MonitorPosition');
 ui.mainwindow = figure('Visible', 'On', 'Name', 'MRIES', 'NumberTitle', 'Off', 'MenuBar', 'none', 'Position', ...
-    [1/2*screensize(3)-600,1/2*screensize(4)-400,400,900], 'CloseRequestFcn', @mainwindow_CloseRequestFcn);
+    [1/2*screensize(3)-600,1/2*screensize(4)-300,400,900], 'CloseRequestFcn', @mainwindow_CloseRequestFcn);
 
 
 
-ui.interPipeling = uicontrol('Style', 'Text','Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.95 0.8 0.03], ...
-    'String','Intergreted Propressing Pipeline','FontSize',fontsize,'Fontname', fontname);
-ui.interpanel = uipanel('Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.6 0.8 0.35]);
+ui.subinfo = uicontrol('Style', 'Text','Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.95 0.8 0.03], ...
+    'String','Subject & Parameter','FontSize',fontsize,'Fontname', fontname);
+ui.info = uipanel('Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.05 0.75 0.9 0.2]);
 
-ui.dirpath = uicontrol('Style', 'Edit', 'Parent', ui.interpanel, 'Units', 'Normalized', 'Position', [0.1 0.7 0.8 0.22], ...
+ui.dirpath = uicontrol('Style', 'Edit', 'Parent', ui.info, 'Units', 'Normalized', 'Position', [0.1 0.55 0.8 0.35], ...
     'Callback',@dirpath_Callback,'FontSize',fontsize,'Fontname', fontname,'max',2);
-ui.dirbrowse = uicontrol('Style', 'Pushbutton', 'Parent', ui.interpanel, 'Units', 'Normalized', 'Position', [0.1 0.4 0.8 0.22], ...
-    'String', ' Subject Floder', 'Callback', @dirbrowse_Callback,'FontSize',fontsize,'Fontname', fontname);
+strButton = '<html><center>Subject<br> Information  ';
+ui.dirbrowse = uicontrol('Style', 'Pushbutton', 'Parent', ui.info, 'Units', 'Normalized', 'Position', [0.1 0.1 0.38 0.4], ...
+    'String', strButton, 'Callback', @dirbrowse_Callback,'FontSize',fontsize,'Fontname', fontname);
+strButton = '<html><center>Parameter<br> Settings  ';
+ui.setbrowse = uicontrol('Style', 'Pushbutton', 'Parent', ui.info, 'Units', 'Normalized', 'Position', [0.52 0.1 0.38 0.4], ...
+    'String', strButton, 'Callback', @setbrowse_Callback,'FontSize',fontsize,'Fontname', fontname);
 
-ui.pipeline = uicontrol('Style', 'Pushbutton', 'Parent', ui.interpanel, 'Units', 'Normalized', 'Position', [0.1 0.1 0.8 0.22], ...
+ui.interPipeling = uicontrol('Style', 'Text','Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.7 0.8 0.03], ...
+    'String','Intergreted Propressing Pipeline','FontSize',fontsize,'Fontname', fontname);
+ui.interpanel = uipanel('Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.05 0.59 0.9 0.11]);
+
+
+
+ui.pipeline = uicontrol('Style', 'Pushbutton', 'Parent', ui.interpanel, 'Units', 'Normalized', 'Position', [0.1 0.1 0.8 0.8], ...
     'String', ' Data Processing Pipeline', 'Callback', @pipeline_Callback,'FontSize',fontsize,'Fontname', fontname);
 
 
 
 %split
-ui.splitFunction = uicontrol('Style', 'Text','Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.55 0.8 0.03], ...
+ui.splitFunction = uicontrol('Style', 'Text','Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.54 0.8 0.03], ...
     'String','Separate Propressing Function','FontSize',fontsize,'Fontname', fontname);
-ui.splitpanel = uipanel('Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.1 0.2 0.8 0.35]);
+ui.splitpanel = uipanel('Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.05 0.19 0.9 0.35]);
 
 ui.edf2mat = uicontrol('Style', 'Pushbutton', 'Parent', ui.splitpanel, 'Units', 'Normalized', 'Position', [0.1 0.7 0.8 0.22], ...
     'String', ' Converting and Epoching', 'Callback', @edf2mat_Callback,'FontSize',fontsize,'Fontname', fontname);
@@ -62,6 +72,8 @@ P = mfilename('fullpath');
 warning off MATLAB:iofun:UnsupportedEncoding
 a=get(ui.dirpath,'string');
 subinfo.mainpath = pathstr;
+subinfo.setting  =  [];
+subinfo.answer   =  [];
 if isempty(a)
     set(ui.dirpath,'String',pathstr)
 end
@@ -97,7 +109,6 @@ if exist([subinfo.mainpath filesep 'subjectinfo.txt'],'file')
     fid = fopen([subinfo.mainpath filesep 'subjectinfo.txt']);
     for n = 1:4
         tline = fgetl(fid);
-        
     end
     tempinfo = textscan(fid,'%s');
     fclose(fid);
@@ -109,25 +120,71 @@ else
     fprintf('Subject Infomation file not found. Pleae create it first manually.\n')
 end
 
-prompt = {'Number of Contact per electrde [16 14 10 16 14 12 10]',...
-    'Label for electrode{A;B;A^;B^}' ...
-    'Bad contacts [100 131]'...
-    'Number of stimulation pulse [50]'...
-    'Sampling rate [2000]'};
+prompt = {'Number of Contact per electrde: eg. [16 14 10 16 14 12 10]',...
+    'Label for electrode : eg.{A;B;A^;B^}' ...
+    'Bad contacts:  eg. [100 131]'...
+    'Number of stimulation pulse: eg. [50]'...
+    'Sampling rate (Hz):   eg. 2000 '...
+    'Stimulation interval (ms):  eg.1'};
 dlg_title = 'Electrode Information';
 num_lines = 1;
-default_answer = { num2str(chan_array), cell2mat(chan_label),'[]','[50]','[2000]'};
+default_answer = { num2str(chan_array), cell2mat(chan_label),'[]','50','2000','1'};
 answer = inputdlg(prompt, dlg_title, num_lines, default_answer);
 subinfo.answer=answer;
 fprintf(['Patient Information:','\n'])
 % subinfo.answer
-fprintf(['Number of contact per electrde :',subinfo.answer{1},'\n'])
-fprintf(['Label for electrode :',subinfo.answer{2},'\n'])
-fprintf(['Bad contacts :',subinfo.answer{3},'\n'])
-fprintf(['Number of stimulation pulse :',subinfo.answer{4},'\n'])
-fprintf(['Sampling rate :',subinfo.answer{5},'\n'])
+fprintf(['Number of contact per electrde :  ',subinfo.answer{1},'\n'])
+fprintf(['Label for electrode :             ',subinfo.answer{2},'\n'])
+fprintf(['Bad contacts :                    ',subinfo.answer{3},'\n'])
+fprintf(['Number of stimulation pulse :     ',subinfo.answer{4},'\n'])
+fprintf(['Sampling rate :                   ',subinfo.answer{5},'\n'])
+fprintf(['Stimulation interval :            ',subinfo.answer{6},'\n'])
+
 
 fprintf(['Completed patient initialization.\n'])
+end
+
+function setbrowse_Callback(hObject, eventdata)
+    global  subinfo 
+    prompt = {'Maker Channel : ''DC10'' ',...
+        'High-pass filter to remove linear drift (Hz): eg. 0.1 '...
+        'Baseline Time (s):  eg. 0.2 ' ,...
+        'n-times std to remove the bad trial: eg. 3',...
+        'Z threshold of significant N1/N2: eg. 6',...
+        'Time range of significant N1/N2 (s) : eg. [0.007 0.05] s',...
+        'Low response duration range (s): eg.[0.005 0.05]s',...
+        'Artifict time to remove (ms) : 5',...
+        'High frecquence response range (Hz): eg. : [70 170]',...
+        'RMS time range (s): eg.[0.007 0.3]'};
+    dlg_title = ' setting';
+    num_lines = 1;
+    default_answer = { 'DC10','0.1','0.2','3','6','[0.007 0.05]','[0.005 0.05]','5','[70 170]','[0.007 0.3]'};
+    answer = inputdlg(prompt, dlg_title, num_lines, default_answer);
+    subinfo.markerChannel = answer{1};
+    subinfo.highPass      = str2num(answer{2});
+    subinfo.baseTime      = str2num(answer{3});
+    subinfo.zremove       = str2num(answer{4});
+    subinfo.zthre         = str2num(answer{5});
+    subinfo.sigN1Time     = str2num(answer{6});
+    subinfo.duraRange     = str2num(answer{7});
+    subinfo.replacetime   = str2num(answer{8});
+    subinfo.highBand      = str2num(answer{9});  
+    subinfo.rmsrange      = str2num(answer{10});
+
+    
+fprintf(['Parameter Settings:','\n'])
+% subinfo.answer
+fprintf(['Maker Channel :                             ',answer{1},      '\n'])
+fprintf(['High-pass filter to remove linear drift :   ',answer{2},'Hz', '\n'])
+fprintf(['Baseline Time :                             ',answer{3},'s', '\n'])
+fprintf(['n-times std to remove the bad trial :       ',answer{4},      '\n'])
+fprintf(['Z threshold of significant N1/N2:           ',answer{5},      '\n'])
+fprintf(['Time range of significant N1/N2:            ',answer{6} ,'s', '\n'])
+fprintf(['Low response duration range:                ',answer{7} ,'s', '\n'])
+fprintf(['Artifict time to remove:                    ',answer{8}, 'ms','\n'])
+fprintf(['High frecquence response range :            ',answer{9} ,'Hz' ,'\n'])
+fprintf(['RMS time range :                            ',answer{10} ,'s' ,'\n'])
+
 end
 
 function pipeline_Callback(hObject, eventdata)
@@ -136,7 +193,7 @@ global  subinfo
 fprintf(['--------------------------Converting and Epoching------------ ----------------------\n'])
 ccep_edf2mat_ALL(subinfo.mainpath)
 fprintf(['---------------------------Response Detection-------------------------------------\n'])
-ccep_comp_batch(subinfo.mainpath,subinfo.answer)
+ccep_comp_batch()
 fprintf(['---------------------------Connectivity Calculation--------------------------------------\n'])
 ccep_connectivity_matrix(subinfo.mainpath)
 fprintf(['---------------------------All Processing Done--------------------------------------\n'])
@@ -151,9 +208,9 @@ fprintf(['Converting and Epoching   done!\n'])
 
 end
 function responseDect_Callback(hObject, eventdata)
-global  subinfo 
+
 fprintf(['--------------------------Response Detection------------ ----------------------\n'])
-ccep_comp_batch(subinfo.mainpath,subinfo.answer)
+ccep_comp_batch()
 fprintf(['Response Detection   done!\n'])
 end
 function connectivity_Callback(hObject, eventdata)
@@ -163,7 +220,7 @@ ccep_connectivity_matrix(subinfo.mainpath)
 fprintf(['Connectivity Calculation   done!\n'])
 end
 function visualization_Callback(hObject, eventdata)
-global  subinfo CCEP3D
+global  subinfo 
 MRIESviewer(subinfo.mainpath)
 end
 

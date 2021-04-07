@@ -1,52 +1,62 @@
 %computing the response by batch
 %updated by Kaijia Sun
 
-function ccep_comp_batch(varargin)
+function ccep_comp_batch()
+global subinfo
 
-
-if isempty(varargin)
+if isempty(subinfo)
     datapath = uigetdir('','Please choose the subject directory');
 else
-    datapath=varargin{1};
+    datapath=subinfo.mainpath;
 end
 
-
+if ~isempty(subinfo)%GUI setting
+    markerChannel=subinfo.markerChannel;
+    
+else
+    markerChannel = 'DC10';%default
+end
 
 files = dir([datapath filesep 'data' filesep 'ccep*.mat']);
 
 
 
-if exist([datapath filesep 'subjectinfo.txt'],'file')
-    fid = fopen([datapath filesep 'subjectinfo.txt']);
-    for n = 1:4
-        tline = fgetl(fid);
-        
+
+
+
+if isempty(subinfo)
+    if exist([datapath filesep 'subjectinfo.txt'],'file')
+        fid = fopen([datapath filesep 'subjectinfo.txt']);
+        for n = 1:4
+            tline = fgetl(fid);
+
+        end
+        tempinfo = textscan(fid,'%s');
+        fclose(fid);
+
+        num_elec = str2num(tempinfo{1}{2});
+        chan_array = cellfun(@str2num,tempinfo{1}(4:4+num_elec-1))';
+        chan_label = tempinfo{1}(4+num_elec+1:end)';
+    else
+        fprintf('Subject Infomation file not found. Pleae create it first manually.\n')
     end
-    tempinfo = textscan(fid,'%s');
-    fclose(fid);
-    
-    num_elec = str2num(tempinfo{1}{2});
-    chan_array = cellfun(@str2num,tempinfo{1}(4:4+num_elec-1))';
-    chan_label = tempinfo{1}(4+num_elec+1:end)';
-else
-    fprintf('Subject Infomation file not found. Pleae create it first manually.\n')
-end
+    prompt = {'Number of Contact per electrde [16 14 10 16 14 12 10]',...
+        'Label for electrode{A;B;A^;B^}' ...
+        'Bad contacts [100 131]'...
+        'Number of stimulation pulse [50]'...
+        'Sampling rate [2000]'...
+        'Stimulation interval [1]'...
+        };
+        
+    dlg_title = 'Electrode Information';
+    num_lines = 1;
+    default_answer = { num2str(chan_array), cell2mat(chan_label),'[]','[50]','[2000]','1'};
 
-prompt = {'Number of Contact per electrde [16 14 10 16 14 12 10]',...
-    'Label for electrode{A;B;A^;B^}' ...
-    'Bad contacts [100 131]'...
-    'Number of stimulation pulse [50]'...
-    'Sampling rate [2000]'};
-dlg_title = 'Electrode Information';
-num_lines = 1;
-default_answer = { num2str(chan_array), cell2mat(chan_label),'[]','[50]','[2000]'};
-
-if isempty(varargin)
     answer = inputdlg(prompt, dlg_title, num_lines, default_answer);
 else
-    answer=varargin{2};
+    answer=subinfo.answer;
 end
-
+stiInter = str2num(subinfo.answer{6});
 numelec = str2num(answer{1});
 for i = 1:length(numelec)
     chan_per_elec{i} = 1:numelec(i);
@@ -84,12 +94,19 @@ for i = 1:length(chan_ID)
     end
     %%
 end
-trigelec = sum(numelec)+1;
+
+if ~isempty(markerChannel)
+    trigelec = sum(numelec)+1;
+else
+    trigelec = [];
+end
+
+
 if ~exist([ datapath filesep 'stimulationdata'],'dir')
     mkdir([datapath filesep 'stimulationdata']);
 end
 % sum_chan = [0 cumsum(chan_per_elec)];
-win = [0.4 0.6];
+win = [0.4 0.6]*stiInter;
 sort_files = natsortfiles({files.name})';
 for j =1:length(sort_files)
     [~, filename, ext] = fileparts(sort_files{j});
@@ -97,7 +114,7 @@ for j =1:length(sort_files)
     elec1 = filename(indx(end-1)+1:indx(end)-1);
     elec2 = filename(indx(end)+1:end);
     fprintf('Stim on %s %s electrodes: ',elec1,elec2);
-     ccep_comp_cal(datapath,[str2num(elec1) str2num(elec2)],numstim,Fs,win,badelec,trigelec,numelec,chan_name);
+    ccep_comp_cal(datapath,[str2num(elec1) str2num(elec2)],numstim,Fs,win,badelec,trigelec,numelec,chan_name);
 
 end
 save([datapath filesep 'subj_elec_info.mat'],'numelec','chan_per_elec','total_elecs','win','badelec','trigelec','chan_name','Fs');
