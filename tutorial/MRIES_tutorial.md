@@ -30,11 +30,11 @@ This is the inputting file structure of the example data.
 Below we will take the example data to introduce these four parts in detail.
 
 #### 1) Electrical stimulation-response data
-Electrical stimulation-response data should be store in *edf* folder as *.edf* format. 
+Electrical stimulation-response data(*.edf* format) and *edf_match.txt* file should be stored in *edf* folder. 
 <div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf.png"  height="200" /></div>
 
-The electrode and channel information matched to *.edf* file should typed in the *edf_match.txt* file. 
-<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf_match.png"  height="200" /></div>
+The electrode and channel information matched to *.edf* file should typed in the *edf_match.txt* file. Every line corresponds to a *.edf* file. The fist row is the filename of *.edf* file. The second row is the stimulated electrode number of this file. The third row is the channel number corresponding to the electrode. For example, the "stimulation.edf" file contains response by channel 1-3 of electrode 7 and channel 2-6 of electrode 8. This line should be " stimulation [7,9] [1:3,2:6]". The picture below is the *edf_match.txt* file of example data. 
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf_match.png"  height="100" /></div>
 
 #### 2) Reconstruction result
 
