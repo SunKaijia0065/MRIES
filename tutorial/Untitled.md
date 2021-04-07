@@ -9,6 +9,6 @@ The MRIES Tutorial is split into four parts, installing MRIES, data inputting an
 
 2. Add the *MRIES* folder to path of Matlab. 
 
-![image](1.jpg)
+![image](/image/1.jpg)
 
 3. Type "MRIES" at the Matlab command prompt ">>" and press enter.
