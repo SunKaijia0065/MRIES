@@ -9,11 +9,10 @@ The MRIES Tutorial is split into five parts, installing MRIES, data inputting, p
 
 2. Add the *MRIES* folder to path of Matlab. 
 
-![](/tutorial/image/path.png)
+<img  src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/path.png"/>
 
 3. Type "MRIES" at the Matlab command prompt ">>" and press enter. If MRIES main GUI will be shown, MRIES will be installed successfully.
-<img  height="150" src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/path.png"/>
+<img  height="150" src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/mainGUI.png"/>
 
-![](/tutorial/image/mainGUI.png)
 
 ## 2.
