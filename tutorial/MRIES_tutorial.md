@@ -33,12 +33,59 @@ Below we will take the example data to introduce these four parts in detail.
 Electrical stimulation-response data(*.edf* format) and *edf_match.txt* file should be stored in *edf* folder. 
 <div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf.png"  height="200" /></div>
 
-The electrode and channel information matched to *.edf* file should typed in the *edf_match.txt* file. Every line corresponds to a *.edf* file. The fist row is the filename of *.edf* file. The second row is the stimulated electrode number of this file. The third row is the channel number corresponding to the electrode. For example, the "stimulation.edf" file contains response by channel 1-3 of electrode 7 and channel 2-6 of electrode 8. This line should be " stimulation [7,9] [1:3,2:6]". The picture below is the *edf_match.txt* file of example data. 
+The electrode and channel information matched to *.edf* file should typed in the *edf_match.txt* file. Every line corresponds to a *.edf* file. The fist row is the filename of *.edf* file. The second row is the stimulated electrode number of this file. The third row is the channel number corresponding to the electrode. 
+
+For example, the "stimulation.edf" file contains response by channel 1-3 of electrode 7 and channel 2-6 of electrode 9. This line should be " stimulation [7,9] [1:3,2:6]". The picture below is the *edf_match.txt* file of example data. 
 <div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf_match.png"  height="100" /></div>
 
 #### 2) Reconstruction result
 
-#### 3) Subject infomation file
+The *label*，*mri*，*touch* and *surf* folders are reconstruction files by Freesurfer, and will be used in different visualization methods. Only copying these folders to the subject folder is OK.
 
+#### 3) Subject infomation file
+The *subjectinfo.txt* file should contain patient and electrode information. It should be the specfic format as the example data below.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/subjectinfo.png"  height="150" /></div>
+
+- name: name of subject
+- age : age of subject
+- sex : sex of subject, female or male
+- hemisphere : electrode implanted hemisphere, rh(right), lh(left) or bh(both).
+- numelec: number of electrode.
+- chan_array: channel number of every electrode.
+- chan_name: label of every electrode.
 #### 4) Intracranial electrodes location file
+
+The *brain3D* folder is generated through the FIELD(引用). The file structure is shown below.
+
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/brain3D.png"  height="200" /></div>
+
+User can also use other electorde reconstruction toolboxs to obtain the location of electrode contacts and generate the *autocoordinate.mat* file without the FIELD by matlab. The structure of *autocoordinate.mat* is shown as below.
+
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/autocoor.png"  height="200" /></div>
+
+The *autocoordinate.mat* contain a matrix called *savecoor*. Every line of *savecoor* corresponds a contact. The first row is the number of contact. The secend row contain the electrode and contact information. eg. '107' means the 7th contact of first electrode, '1013' means the 13rd contact of 10th electrode. The 3rd-5th row is the *tkr* coordination of contact.
+
+
+
+## 3.Processing pipline
+After organizing data input, user can open the 'MRIES' main GUI to run the processing pipline. The processing pipline can be run by GUI button. Two mainly steps in this process,(1) subject and paramater setting and (2)  data processing.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/mainGUI.png"  height="450" /></div>
+
+#### (1).Subject and paramater setting
+
+Press the ‘Subject Information’ button, and subject's path eslection window will be shown. 
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/subpath.png"  height="300" /></div>
+
+Choose the subject folder ,then the ‘Electrode & Stimulation’ window will be shown. 
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/elec_sti.png"  height="300" /></div>
+
+The electrode label and channel number will be loaded. The stimulation setting should typed in this window, eg, number of stimulation pluse, bad contact, sampling rate and stimulation interval.
+
+
+
 
