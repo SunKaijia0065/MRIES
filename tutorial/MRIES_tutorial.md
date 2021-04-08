@@ -82,10 +82,12 @@ Press the ‘Subject Information’ button, and subject's path eslection window 
 
 Choose the subject folder ,then the ‘Electrode & Stimulation’ window will be shown. 
 
-<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/elec_sti.png"  height="300" /></div>
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/elec_sti.png"  height="350" /></div>
 
 The electrode label and channel number will be loaded. The stimulation setting should typed in this window, eg, number of stimulation pluse, bad contact, sampling rate and stimulation interval.
 
+Press the 'Parameter Settings' button, and the parameter setting windown will be opened.User can set the parameters in this window. The specific meaning of the parameters can be seen in our future paper.
 
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/elec_sti.png"  height="350" /></div>
 
 
