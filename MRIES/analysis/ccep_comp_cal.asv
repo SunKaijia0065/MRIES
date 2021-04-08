@@ -12,7 +12,7 @@ function [z_N1,peak_N1, latency_N1] = ccep_comp_cal(datapath,stimelec,numstim,Fs
 % trigelec: electrode with trigger signal
 % chan_per_elec: number of contacts for each electrode
 % chan_name: channel name
-
+%
 %Requirment:
 % 1) should install EEGlab before running this code
 % 2) data file was segmented to ONLY include one paired electrodes stimululated per time (eg., ccep_elec_35_36.mat with "data" as a variable)
@@ -57,8 +57,12 @@ sigN1Time   = subinfo.sigN1Time; %time range of N1,P1
 
 highBand = subinfo.highBand; %high response frequence range
 replacetime=subinfo.replacetime; %artifact time
-markerChannel = subinfo.markerChannel;
 
+if ~isempty(markerChannel)
+    trigelec = sum(numelec)+1;
+else
+    trigelec = [];
+end
 data(badelec,:)=0;
 
 
@@ -162,12 +166,8 @@ ccep = [];
 
 elec_bad_trials = cell(size(data,1),1);
 total_elecs = 1:size(data,1);
+val_elecs=setdiff(total_elecs,trigelec);
 
-if ~isempty(markerChannel)
-    val_elecs=setdiff(total_elecs,trigelec);
-else
-    val_elecs = total_elecs;
-end
 
 %% response detection
 locs_sec = locs./Fs;

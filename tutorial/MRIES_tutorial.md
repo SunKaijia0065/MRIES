@@ -2,6 +2,7 @@
 This tutorial is an introduction to MRIES processing and visualization.
 
 The MRIES Tutorial is split into five parts, installing MRIES, data inputting, processing pipline, visualization and result outputting.
+ We will take the example data as example to show the use of MRIES.
 
 
 ## 1. Installing MRIES:
@@ -35,7 +36,8 @@ Electrical stimulation-response data(*.edf* format) and *edf_match.txt* file sho
 
 The electrode and channel information matched to *.edf* file should typed in the *edf_match.txt* file. Every line corresponds to a *.edf* file. The fist row is the filename of *.edf* file. The second row is the stimulated electrode number of this file. The third row is the channel number corresponding to the electrode. 
 
-For example, the "stimulation.edf" file contains response by channel 1-3 of electrode 7 and channel 2-6 of electrode 9. This line should be " stimulation [7,9] [1:3,2:6]". The picture below is the *edf_match.txt* file of example data. 
+For example, the "stimulation.edf" file contains response by channel 1-3 of electrode 7 and channel 2-6 of electrode 9. This line should be " stimulation [7,9] [1:3,2:6]". The picture below is the *edf_match.txt* file of example data.
+ 
 <div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf_match.png"  height="100" /></div>
 
 #### 2) Reconstruction result
@@ -86,8 +88,110 @@ Choose the subject folder ,then the ‘Electrode & Stimulation’ window will be
 
 The electrode label and channel number will be loaded. The stimulation setting should typed in this window, eg, number of stimulation pluse, bad contact, sampling rate and stimulation interval.
 
-Press the 'Parameter Settings' button, and the parameter setting windown will be opened.User can set the parameters in this window. The specific meaning of the parameters can be seen in our future paper.
+Press the 'Parameter Settings' button, and the parameter setting windown will be opened as below.User can set the parameters in this window. The specific meaning of the parameters can be seen in our future paper.
 
-<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/elec_sti.png"  height="350" /></div>
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/setting.png"  height="450" /></div>
+
+Subject information and parameter setting can be shown in command line.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/setting_output.png"  height="300" /></div>
+
+#### (2).Data processing
+
+Data processing can be run as complete or separate model.
+
+Pressins the 'Data Processing pipeline' button can dirctly run whole pipeline of processing.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/pipelinebutton.png"  width="300" /></div>
+
+User can also press the buttons in ‘Separate Propressing Function’ panel to run the processing separatly. 
+The detailed explanation of processing steps can be seen in our future paper.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/sparatebutton.png"  width="300" /></div>
+
+Processing detail can be shown in command line.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineall.png"  height="200" /></div>
+
+- Tips: There are two case in epoching step, With and without marker channel. When the data contain the marker channel, user only need type label of the marker channel in parameter setting window. When the data don't contain the marker channel, user neeed empty the marker channel and the command will remind the user to type the channel number used to detect in the processing.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineepoch.png"  height="200" /></div>
+
+## 4. Visualization
+Press the 'Visulization' button can open the MRIES's visulization GUI, MRIESviewer as below.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/MRIESviewer.png"  height="400" /></div>
+
+The subject and electrode information can be shown in the .
+The connectivity method and stimulation contact to show can be chosen in the .
+The *autocoordinate.mat* file should be input by the 'coordinates' button.
+
+There are four visualization methods in MRIES.
+(1)Matrix, (2)Circle map, (3)Volume and (4)Surface. 
+After choosing the method and stimilation to display, user can have the four kinds of visualization as below. 
+We use the example data to display these methods. 
+The detailed explanation of visualization can be seen in our future paper.
+
+
+#### (1) Matrix
+The controller ‘Conn Mat’ in visualization GUI can open the matrix GUI. The connectivity can be shown as hot-map. The threshold can change by the Slider.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/Matrix.png"  height="400" /></div>
+#### (2) Circle map
+
+The controller ‘Circle Map’ in visualization GUI can open the circle map GUI.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/circle.png"  height="400" /></div>
+#### (3) Volume
+
+The volume visualization can be shown in MRIESviewer GUI. This method merge the MR image, CT image and response result.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/volume.png"  height="400" /></div>
+#### (4) Surface
+
+The controller ‘Surface’ in visualization GUI can open the Surface GUI. User can rotate the view in this GUI. 
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/surface.png"  height="400" /></div>
+
+
+## 5. Result outputting
+
+
+After all processsing, the *data*, *stimulation* and *Matrix* folders will be generated  in the subject folder by MRIES.
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderresult.png"  height="200" /></div>
+
+The *data* folder contains raw signal separated into the different stimulated contact-pairs. For example, '*ccep_elec_14_15.mat*' means the data by stimulating 14th and 15th channel.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderdata.png"  height="200" /></div>
+
+Every file in *stimulationdata* folder includes all response indicators from one stimulation contact-pairs. 
+For example, '*ccep_elec_B2_B3_All.mat*' means the response detection result by stimulating 2nd and 3rd contact of 'B' electrode.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderstimu.png"  height="200" /></div>
+
+The *Matrix* folder includes all the connectivity matrix of all kinds of indicators, which can be used in the visualization GUIs. 
+For example, '*conn_matrix_LF_RMS.mat*' means the low-frecquency RMS matrix. These matrix can be used to further analysis and calculation.
+
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderMatrix.png"  height="200" /></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

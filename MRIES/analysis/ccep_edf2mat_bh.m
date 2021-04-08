@@ -19,9 +19,8 @@ else
     num_sti=50;
 end
 
-if ~isempty(subinfo.setting)
-    makerChannel=subinfo.setting{1};
-    
+if ~isempty(subinfo)
+    makerChannel=subinfo.markerChannel;
 else
     makerChannel = 'DC10';
 end
@@ -112,8 +111,12 @@ for i = 1:length(chan_ID)
     [~,m] = sort(k);
     indx = [indx;order(m)];
 end
-index = [indx;size(data,1)];
-
+if ~isempty(makerChannel)
+    index = [indx;size(data,1)];
+    
+else 
+    index = indx;
+end
 
 default_chan_per_elec = chan_array;
 
