@@ -108,11 +108,11 @@ The detailed explanation of processing steps can be seen in our future paper.
 <div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/sparatebutton.png"  width="300" /></div>
 
 Processing detail can be shown in command line.
-<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineall.png"  height="200" /></div>
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineall.png"  width ="400" /></div>
 
 - Tips: There are two case in epoching step, With and without marker channel. When the data contain the marker channel, user only need type label of the marker channel in parameter setting window. When the data don't contain the marker channel, user neeed empty the marker channel and the command will remind the user to type the channel number used to detect in the processing.
 
-<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineepoch.png"  height="200" /></div>
+<div align=center><img src="https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineepoch.png"  width ="400" /></div>
 
 ## 4. Visualization
 Press the 'Visulization' button can open the MRIES's visulization GUI, MRIESviewer as below.
