@@ -1,0 +1,163 @@
+<h1>Welcome to the MRIES tutorial</h1>
+
+<p>This tutorial is an introduction to MRIES processing and visualization.</p>
+
+<p>The MRIES Tutorial is split into five parts, installing MRIES, data inputting, processing pipline, visualization and result outputting.
+ We will take the example data as example to show the use of MRIES.</p>
+
+<h2>1. Installing MRIES:</h2>
+
+<ol><li><p>Start Matlab.</p></li><li><p>Add the <em>MRIES</em> folder to path of Matlab. </p></li></ol>
+
+<p>&lt;img  src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/path.png&quot;/&gt;</p>
+
+<ol><li>Type &quot;MRIES&quot; at the Matlab command prompt &quot;&gt;&gt;&quot; and press enter. If MRIES main GUI will be shown, MRIES will be installed successfully.</li></ol>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/mainGUI.png&quot;  height=&quot;450&quot; /&gt;&lt;/div&gt;</p>
+
+<h2>2.Data inputting</h2>
+
+<p>The data would inputted in MRIES are three parts:
+- Electrical stimulation-response data : Used to detect the CCEP response, should be <em>.edf</em> format.
+- Reconstruction result : computed by Freesurfer.
+- Subject infomation file : eg. age, sex, electrode implantation...
+- Intracranial electrodes location file : computed by FIELD(引用).</p>
+
+<p>This is the inputting file structure of the example data. 
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/datainputall.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;
+Below we will take the example data to introduce these four parts in detail.</p>
+
+<h4>1) Electrical stimulation-response data</h4>
+
+<p>Electrical stimulation-response data(<em>.edf</em> format) and <em>edf_match.txt</em> file should be stored in <em>edf</em> folder. 
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
+
+<p>The electrode and channel information matched to <em>.edf</em> file should typed in the <em>edf_match.txt</em> file. Every line corresponds to a <em>.edf</em> file. The fist row is the filename of <em>.edf</em> file. The second row is the stimulated electrode number of this file. The third row is the channel number corresponding to the electrode. </p>
+
+<p>For example, the &quot;stimulation.edf&quot; file contains response by channel 1-3 of electrode 7 and channel 2-6 of electrode 9. This line should be &quot; stimulation [7,9] [1:3,2:6]&quot;. The picture below is the <em>edf_match.txt</em> file of example data.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/edf_match.png&quot;  height=&quot;100&quot; /&gt;&lt;/div&gt;</p>
+
+<h4>2) Reconstruction result</h4>
+
+<p>The <em>label</em>，<em>mri</em>，<em>touch</em> and <em>surf</em> folders are reconstruction files by Freesurfer, and will be used in different visualization methods. Only copying these folders to the subject folder is OK.</p>
+
+<h4>3) Subject infomation file</h4>
+
+<p>The <em>subjectinfo.txt</em> file should contain patient and electrode information. It should be the specfic format as the example data below.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/subjectinfo.png&quot;  height=&quot;150&quot; /&gt;&lt;/div&gt;</p>
+
+<ul><li>name: name of subject</li><li>age : age of subject</li><li>sex : sex of subject, female or male</li><li>hemisphere : electrode implanted hemisphere, rh(right), lh(left) or bh(both).</li><li>numelec: number of electrode.</li><li>chan_array: channel number of every electrode.</li><li>chan_name: label of every electrode.</li></ul>
+
+<h4>4) Intracranial electrodes location file</h4>
+
+<p>The <em>brain3D</em> folder is generated through the FIELD(引用). The file structure is shown below.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/brain3D.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
+
+<p>User can also use other electorde reconstruction toolboxs to obtain the location of electrode contacts and generate the <em>autocoordinate.mat</em> file without the FIELD by matlab. The structure of <em>autocoordinate.mat</em> is shown as below.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/autocoor.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
+
+<p>The <em>autocoordinate.mat</em> contain a matrix called <em>savecoor</em>. Every line of <em>savecoor</em> corresponds a contact. The first row is the number of contact. The secend row contain the electrode and contact information. eg. &#39;107&#39; means the 7th contact of first electrode, &#39;1013&#39; means the 13rd contact of 10th electrode. The 3rd-5th row is the <em>tkr</em> coordination of contact.</p>
+
+<h2>3.Processing pipline</h2>
+
+<p>After organizing data input, user can open the &#39;MRIES&#39; main GUI to run the processing pipline. The processing pipline can be run by GUI button. Two mainly steps in this process,(1) subject and paramater setting and (2)  data processing.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/mainGUI.png&quot;  height=&quot;450&quot; /&gt;&lt;/div&gt;</p>
+
+<h4>(1).Subject and paramater setting</h4>
+
+<p>Press the ‘Subject Information’ button, and subject&#39;s path eslection window will be shown. </p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/subpath.png&quot;  height=&quot;300&quot; /&gt;&lt;/div&gt;</p>
+
+<p>Choose the subject folder ,then the ‘Electrode &amp; Stimulation’ window will be shown. </p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/elec_sti.png&quot;  height=&quot;350&quot; /&gt;&lt;/div&gt;</p>
+
+<p>The electrode label and channel number will be loaded. The stimulation setting should typed in this window, eg, number of stimulation pluse, bad contact, sampling rate and stimulation interval.</p>
+
+<p>Press the &#39;Parameter Settings&#39; button, and the parameter setting windown will be opened as below.User can set the parameters in this window. The specific meaning of the parameters can be seen in our future paper.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/setting.png&quot;  height=&quot;450&quot; /&gt;&lt;/div&gt;</p>
+
+<p>Subject information and parameter setting can be shown in command line.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/setting_output.png&quot;  height=&quot;300&quot; /&gt;&lt;/div&gt;</p>
+
+<h4>(2).Data processing</h4>
+
+<p>Data processing can be run as complete or separate model.</p>
+
+<p>Pressins the &#39;Data Processing pipeline&#39; button can dirctly run whole pipeline of processing.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/pipelinebutton.png&quot;  width=&quot;300&quot; /&gt;&lt;/div&gt;</p>
+
+<p>User can also press the buttons in ‘Separate Propressing Function’ panel to run the processing separatly. 
+The detailed explanation of processing steps can be seen in our future paper.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/sparatebutton.png&quot;  width=&quot;300&quot; /&gt;&lt;/div&gt;</p>
+
+<p>Processing detail can be shown in command line.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineall.png&quot;  width =&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<ul><li>Tips: There are two case in epoching step, With and without marker channel. When the data contain the marker channel, user only need type label of the marker channel in parameter setting window. When the data don&#39;t contain the marker channel, user neeed empty the marker channel and the command will remind the user to type the channel number used to detect in the processing.</li></ul>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/lineepoch.png&quot;  width =&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<h2>4. Visualization</h2>
+
+<p>Press the &#39;Visulization&#39; button can open the MRIES&#39;s visulization GUI, MRIESviewer as below.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/MRIESviewer.png&quot;  height=&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<p>The subject and electrode information can be shown in the .
+The connectivity method and stimulation contact to show can be chosen in the .
+The <em>autocoordinate.mat</em> file should be input by the &#39;coordinates&#39; button.</p>
+
+<p>There are four visualization methods in MRIES.
+(1)Matrix, (2)Circle map, (3)Volume and (4)Surface. 
+After choosing the method and stimilation to display, user can have the four kinds of visualization as below. 
+We use the example data to display these methods. 
+The detailed explanation of visualization can be seen in our future paper.</p>
+
+<h4>(1) Matrix</h4>
+
+<p>The controller ‘Conn Mat’ in visualization GUI can open the matrix GUI. The connectivity can be shown as hot-map. The threshold can change by the Slider.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/Matrix.png&quot;  height=&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<h4>(2) Circle map</h4>
+
+<p>The controller ‘Circle Map’ in visualization GUI can open the circle map GUI.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/circle.png&quot;  height=&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<h4>(3) Volume</h4>
+
+<p>The volume visualization can be shown in MRIESviewer GUI. This method merge the MR image, CT image and response result.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/volume.png&quot;  height=&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<h4>(4) Surface</h4>
+
+<p>The controller ‘Surface’ in visualization GUI can open the Surface GUI. User can rotate the view in this GUI. </p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/surface.png&quot;  height=&quot;400&quot; /&gt;&lt;/div&gt;</p>
+
+<h2>5. Result outputting</h2>
+
+<p>After all processsing, the <em>data</em>, <em>stimulation</em> and <em>Matrix</em> folders will be generated  in the subject folder by MRIES.
+&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderresult.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
+
+<p>The <em>data</em> folder contains raw signal separated into the different stimulated contact-pairs. For example, &#39;*ccep<em>elec</em>14_15.mat*&#39; means the data by stimulating 14th and 15th channel.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderdata.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
+
+<p>Every file in <em>stimulationdata</em> folder includes all response indicators from one stimulation contact-pairs. 
+For example, &#39;*ccep<em>elec</em>B2<em>B3</em>All.mat*&#39; means the response detection result by stimulating 2nd and 3rd contact of &#39;B&#39; electrode.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderstimu.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
+
+<p>The <em>Matrix</em> folder includes all the connectivity matrix of all kinds of indicators, which can be used in the visualization GUIs. 
+For example, &#39;*conn<em>matrix</em>LF_RMS.mat*&#39; means the low-frecquency RMS matrix. These matrix can be used to further analysis and calculation.</p>
+
+<p>&lt;div align=center&gt;&lt;img src=&quot;https://github.com/SunKaijia0065/MRIES/blob/main/tutorial/image/folderMatrix.png&quot;  height=&quot;200&quot; /&gt;&lt;/div&gt;</p>
