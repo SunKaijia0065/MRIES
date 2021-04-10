@@ -15,6 +15,17 @@ A Matlab toolbox to auto-process and visualize the cortical responses to single 
 
 4. The detailed usage steps are showed in the “[*MRIES_tutorial.md*](https://github.com/SunKaijia0065/MRIES/blob/main/MRIES_tutorial.md)” file
 
+
+
+### About example data 
+
+Because of the limitation of Github file size, we upload the whole example data at [figshare](https://figshare.com/articles/dataset/MRIES_s_sample_data/14376110).
+
+The MRIES tutorial is also loaded in [Github](https://github.com/SunKaijia0065/MRIES/blob/main/MRIES_tutorial.md).
+
+The detailed subject folder structure and data input organization can be seen in the tutorial as the example data. Users can use the example data to test the toolbox and process their own data after inputting them as example data.
+
+
 ### Requirements
 nifti:
 https://www.mathworks.com/matlabcentral/fileexchange/8797-tools-for-nifti-and-analyze-image
