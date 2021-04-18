@@ -54,7 +54,7 @@ ui.responseDect = uicontrol('Style', 'Pushbutton', 'Parent', ui.splitpanel, 'Uni
     'String', ' Epoching and Response Detection', 'Callback', @responseDect_Callback,'FontSize',fontsize,'Fontname', fontname);
 
 ui.connectivity = uicontrol('Style', 'Pushbutton', 'Parent', ui.splitpanel, 'Units', 'Normalized', 'Position', [0.1 0.1 0.8 0.22], ...
-    'String', ' Connectivity Calculation', 'Callback', @connectivity_Callback,'FontSize',fontsize,'Fontname', fontname);
+    'String', ' Connectivity matrix construction', 'Callback', @connectivity_Callback,'FontSize',fontsize,'Fontname', fontname);
 
 % visualization
 
