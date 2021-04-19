@@ -155,14 +155,17 @@ The detailed explanation of visualization can be seen in our future paper.
 The controller ‘Conn Mat’ in visualization GUI can open the matrix GUI. The connectivity can be shown as hot-map. The threshold can change by the Slider.
 
 <div align=center><img src="https://raw.githubusercontent.com/SunKaijia0065/MRIES_tutorial//main/image/Matrix.png"  height="400" /></div>
+
 #### (2) Circle map
 
 The controller ‘Circle Map’ in visualization GUI can open the circle map GUI.
 <div align=center><img src="https://raw.githubusercontent.com/SunKaijia0065/MRIES_tutorial//main/image/circle.png"  height="400" /></div>
+
 #### (3) Volume
 
 The volume visualization can be shown in MRIESviewer GUI. This method merge the MR image, CT image and response result.
 <div align=center><img src="https://raw.githubusercontent.com/SunKaijia0065/MRIES_tutorial//main/image/volume.png"  height="400" /></div>
+
 #### (4) Surface
 
 The controller ‘Surface’ in visualization GUI can open the Surface GUI. User can rotate the view in this GUI. 
