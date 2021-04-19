@@ -48,13 +48,13 @@ ui.splitFunction = uicontrol('Style', 'Text','Parent', ui.mainwindow, 'Units', '
 ui.splitpanel = uipanel('Parent', ui.mainwindow, 'Units', 'Normalized', 'Position', [0.05 0.19 0.9 0.35]);
 
 ui.edf2mat = uicontrol('Style', 'Pushbutton', 'Parent', ui.splitpanel, 'Units', 'Normalized', 'Position', [0.1 0.7 0.8 0.22], ...
-    'String', ' Data input', 'Callback', @edf2mat_Callback,'FontSize',fontsize,'Fontname', fontname);
+    'String', ' Data Input', 'Callback', @edf2mat_Callback,'FontSize',fontsize,'Fontname', fontname);
 
 ui.responseDect = uicontrol('Style', 'Pushbutton', 'Parent', ui.splitpanel, 'Units', 'Normalized', 'Position', [0.1 0.4 0.8 0.22], ...
     'String', ' Epoching and Response Detection', 'Callback', @responseDect_Callback,'FontSize',fontsize,'Fontname', fontname);
 
 ui.connectivity = uicontrol('Style', 'Pushbutton', 'Parent', ui.splitpanel, 'Units', 'Normalized', 'Position', [0.1 0.1 0.8 0.22], ...
-    'String', ' Connectivity matrix construction', 'Callback', @connectivity_Callback,'FontSize',fontsize,'Fontname', fontname);
+    'String', ' Connectivity Matrix Construction', 'Callback', @connectivity_Callback,'FontSize',fontsize,'Fontname', fontname);
 
 % visualization
 
